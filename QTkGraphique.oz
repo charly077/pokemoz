@@ -8,13 +8,17 @@ GrassTag
 RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
 RoadTag
 
-% Création des images des pokémons (TODO Ajouter les pokémons)
+% Création des images des pokémons (TODO Ajouter les pokémons et les mettre à la bonne taille !! pk pas orientation)
 Bulbasoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Bulbasoz.gif')}
 Oztirtle = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Oztirtle.gif')}
 Charmandoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Charmandoz.gif')}
 
 
-% Création des images des Dresseurs (Todo Ajouter les dresseurs sauvages)
+% Création des images des Dresseurs (Todo Ajouter les dresseurs Grande image 300/300 pour perso principal)
+PersoPrincipalImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
+PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipalGrand.gif')}
+PersoSauvage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvage.gif')}
+PersoSauvageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvageGrand.gif')}
 
 
 % Création des variables des personnages 
@@ -40,7 +44,8 @@ Map = map(r(1 1 1 0 0 0 0)
 CanvasMap
 WindowMap
 Desc = td(title:"Pokemoz, the beginning of the end :) "
-	  canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100 glue:nswe))
+	  canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100)
+	  button(text:"Close" action:toplevel#close))
 
 %declaration des fonctions pour créer la map :)
 declare
@@ -132,38 +137,92 @@ proc {StartGame}
 end
 
 
-
 %creation du perso principal le nom du fichier doit correspondre au nom du perso
 declare
 fun {CreatePersoPrincipal Canvas}
-   Photo = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
+   Photo = PersoPrincipalImage
    Perso
 in
    {Canvas create(image 50+6*70 50+6*70 image:Photo handle:Perso)}
    Perso
 end
 
-
-
-
-
-
-% GESTION DES COMBATS, fonctions générales
-%Attaquant doit être soit un pokémon sauvage soit un dresseur !!
+%Fonction qui renvoie la photo du pokémoz portant le nom Name
 declare
-proc {StartCombat Attaquant}
-   WindowCombat
-   CanvasCombat
-   Combat = td(title:"Pokemoz, the fight can begin !"
-	       canvas(handle:CanvasCombat width:500 height:500))
-in
-   WindowCombat = {QTk.build Combat}
-   {WindowCombat show} 
+fun {ChoosePhotoPokemoz Name}
+   case Name of "Bulbasoz" then  Bulbasoz
+   [] "Oztirtle" then  Oztirtle
+   [] "Charmandoz" then Charmandoz
+   else
+      {Show "error, This pokemoz doens't exist"}
+      nil
+   end
 end
 
+
+% GESTION DES COMBATS
+
 % Perso principale >< pokémon sauvage : TODO implémeneter
+declare
+proc {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
+   PokemozAttaquantName
+   PokemozPersoPrincipalName
+   ImageCanvasPersoPrincipal
+in
+   case Attaquant of p(name:X) then PokemozAttaquantName = X end
+   case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end
+   % On peut mettre directement le pokemoz
+   {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
+   % Mettre l'image du dresseur pendant une seconde
+   {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
+   {Delay 3000}
+   {ImageCanvasPersoPrincipal delete}
+   {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName})}
+end
 
 % Perso Principale >< autre dresseur
+proc {AttackTrainer  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
+   PokemozAttaquantName
+   PokemozPersoPrincipalName
+   ImageCanvasPersoPrincipal
+   ImageCanvasPersoSauvage
+in
+   {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
+   {CanvasAttaquant create(image 550 150 image:PersoSauvageGrand handle:ImageCanvasPersoSauvage)}
+   {Delay 3000}
+   case Attaquant of  t(p:p(name:X)) then PokemozAttaquantName = X end 
+   case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end
+   {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName})}
+   {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
+   {ImageCanvasPersoPrincipal delete}
+   {ImageCanvasPersoSauvage delete}
+end
+
+%fonctions générales
+%Attaquant doit être soit un pokémon sauvage soit un dresseur !!
+declare
+proc {StartCombat Attaque Attaquant}
+   WindowCombat
+   CanvasAttaquant
+   CanvasPersoPrincipal
+   Combat = td(title:"Pokemoz, the fight can begin !"
+	       canvas(handle:CanvasAttaquant width:700 height:300)
+	       canvas(handle:CanvasPersoPrincipal width:700 height:300)
+	       button(text:"Close" action:toplevel#close))
+   Label
+in
+   WindowCombat = {QTk.build Combat}
+   {WindowCombat show} %show(wait:true modal:true)}
+   {Record.label Attaquant Label}
+   case Label of p then {AttackWildPokemoz WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant} 
+   [] t then {AttackTrainer WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
+   else
+      {Show "error StartCombat"}
+   end
+
+   %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
+end
+
 
 
 
@@ -176,7 +235,9 @@ end
 {Delay 1000}
 PersoPrincipal={CreatePersoPrincipal CanvasMap}
 
-{StartCombat nil}
+{StartCombat t(p:(p(name:"Bulbasoz"))) p(name:"Oztirtle")}
+
+{StartCombat t(p:p(name:"Bulbasoz")) t(p:p(name:"Charmandoz"))}
 
 
 
