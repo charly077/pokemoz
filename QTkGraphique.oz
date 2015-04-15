@@ -45,7 +45,7 @@ CanvasMap
 WindowMap
 Desc = td(title:"Pokemoz, the beginning of the end :) "
 	  canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100)
-	  button(text:"Close" action:toplevel#close))
+	  button(text:"Close" action:toplevel#close width:10))
 
 %declaration des fonctions pour créer la map :)
 declare
@@ -170,7 +170,7 @@ proc {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaq
    ImageCanvasPersoPrincipal
 in
    case Attaquant of p(name:X) then PokemozAttaquantName = X end
-   case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end
+   case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end 
    % On peut mettre directement le pokemoz
    {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
    % Mettre l'image du dresseur pendant une seconde
@@ -190,7 +190,7 @@ in
    {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
    {CanvasAttaquant create(image 550 150 image:PersoSauvageGrand handle:ImageCanvasPersoSauvage)}
    {Delay 3000}
-   case Attaquant of  t(p:p(name:X)) then PokemozAttaquantName = X end 
+   case Attaquant of  t(p:p(name:X)) then PokemozAttaquantName = X end
    case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end
    {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName})}
    {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
@@ -205,22 +205,27 @@ proc {StartCombat Attaque Attaquant}
    WindowCombat
    CanvasAttaquant
    CanvasPersoPrincipal
+   PlaceHolder
    Combat = td(title:"Pokemoz, the fight can begin !"
 	       canvas(handle:CanvasAttaquant width:700 height:300)
 	       canvas(handle:CanvasPersoPrincipal width:700 height:300)
-	       button(text:"Close" action:toplevel#close))
+	       button(text:"Close" action:toplevel#close width:10)
+	      placeholder(handle:PlaceHolder))
    Label
 in
    WindowCombat = {QTk.build Combat}
-   {WindowCombat show} %show(wait:true modal:true)}
+   {WindowCombat show(modal:true)}
    {Record.label Attaquant Label}
    case Label of p then {AttackWildPokemoz WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant} 
    [] t then {AttackTrainer WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
    else
       {Show "error StartCombat"}
    end
-
-   %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
+   thread
+      {Delay 1000}
+         %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
+      {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Browse "Gérer le bouton attaquer"} end width:10)))}
+   end
 end
 
 
