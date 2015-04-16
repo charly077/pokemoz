@@ -571,17 +571,16 @@ end
 
 declare
 fun {MoveLeft Init}
-   local B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse {And Init.x<7 B}}
-      if {And Init.x>0 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)-1 Init.y)} {Move Init moveLeft} {AdjoinAt Init x (Init.x)+1}
+   local B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse Init.x}
+      if {And Init.x>0 B} then  {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)-1 Init.y)} {Move Init moveLeft} {AdjoinAt Init x (Init.x)-1}
       else Init
       end
    end
 end
-
 declare
 fun {MoveRight Init}
-   local B in {Send MapTrainers check((Init.x)+1 Init.y B)}
-      if  {And (Init.x<7) B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)+1 Init.y)} {Move Init moveRight} {AdjoinAt Init x (Init.x)-1}
+   local B in {Send MapTrainers check((Init.x)+1 Init.y B)} {Browse Init.x}
+      if {And (Init.x<7) B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)+1 Init.y)} {Move Init moveRight} {AdjoinAt Init x (Init.x)+1}
       else Init
       end
    end
@@ -589,8 +588,8 @@ end
 
 declare
 fun {MoveUp Init}
-   local B in {Send MapTrainers check((Init.x) (Init.y)-1 B)} 
-      if {And Init.y<0 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)-1)} {Move Init moveUp} {AdjoinAt Init y (Init.y)-1}
+   local B in {Send MapTrainers check((Init.x) (Init.y)-1 B)}
+      if {And Init.y>0 B} then  {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)-1)} {Move Init moveUp} {AdjoinAt Init y (Init.y)-1}
       else Init
    end %% truc chelou il n'accepte pas {Width Map} surement car record de record
    end
@@ -599,7 +598,7 @@ end
 declare
 fun {MoveDown Init}
    local B in {Send MapTrainers check((Init.x) (Init.y)+1 B)}
-      if {And Init.y>7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)+1)} {Move Init moveDown} {AdjoinAt Init y (Init.y)+1}
+      if {And Init.y<7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)+1)} {Move Init moveDown} {AdjoinAt Init y (Init.y)+1}
       else Init
       end
    end
