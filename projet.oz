@@ -438,7 +438,7 @@ end
 % Verifie si la case de coordonnee (X,Y) est vide
 declare
 fun {Check X Y Init}
-   Init.Y.X
+   Init.Y.X==1  
 end
 
 
@@ -446,7 +446,8 @@ end
 % Fonction qui modifie les coordonnee (X,Y) de la Map Init
 declare
 fun {SetMap X Y Init}
-   if {Check X Y Init}>0 then {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)-1}}
+   {Browse {Check X Y Init}}
+   if {Check X Y Init} then {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)-1}}
    else {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)+1}}
    end
 end
@@ -457,8 +458,8 @@ end
 declare FMap in
 fun {FMap Msg Init}
    case Msg
-   of check(X Y) then {Check X Y Init} 
-   [] setMap(X Y) then {SetMap X Y Init}
+   of  setMap(X Y) then {SetMap X Y Init}
+   %[] check(X Y) then {Check X Y Init}setMap(X Y) then {SetMap X Y Init}
    [] get(X) then X=Init Init 
    end
 end
@@ -470,6 +471,7 @@ Map={NewPortObject FMap {CreateMap}}
 
 %test
 
+{Browse {Send Maptrainers check(5 7)}}
 local X in {Send Map get(X)} {Browse X} end
 local X in {Send Maptrainers get(X)} {Browse X} end
 {Send Map setMap(5 6)} 
@@ -568,14 +570,14 @@ Trainers = {CreateOtherTrainer 3 4}
 
 declare
 fun {MoveLeft Init}
-   if {And Init.x<{Width Map.1} MapTrainers.y.(x+1)} then {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
+   if {And Init.x<{Width Map.1} {Send MapTrainers check((Init.x)+1 Init.y)} then {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
       else Init
    end 
 end
 
 declare
 fun {MoveRight Init}
-   if  {And (Init.x>0) MapTrainers.y.(x-1)} then {AdjoinAt Init x (Init.x)-1} %{MoveRGUI}
+   if  {And (Init.x>0){Send MapTrainers check((Init.x)+1 Init.y)}} then {AdjoinAt Init x (Init.x)-1} %{MoveRGUI}
       else Init
    end
 end
