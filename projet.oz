@@ -129,13 +129,12 @@ fun {FMap Msg Init}
    end
 end
 
-% test
-
-{Browse {CreateMap}}
-
-declare T1 T2 T3
+% Initialisation Map et Maptrainers
+declare Maptrainers Map
 Maptrainers={NewPortObject FMap {CreateMap}}
 Map={NewPortObject FMap {CreateMap}}
+
+%test
 
 local X in {Send Map get(X)} {Browse X} end
 local X in {Send Maptrainers get(X)} {Browse X} end
@@ -183,7 +182,7 @@ Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
 %Creation d'un record trainer spécifique
 declare
 fun {CreateTrainer Name Pokemoz X Y Speed Type}
-   trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 handle:0 type:Type)
+   trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0  type:Type)
 end
 
 declare
@@ -235,28 +234,28 @@ Trainers = {CreateOtherTrainer 3 4}
 
 declare
 fun {MoveLeft Init}
-   if Init.x<{Width Map.1} then {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
+   if {And Init.x<{Width Map.1} MapTrainers.y.(x+1)} then {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
       else Init
    end 
 end
 
 declare
 fun {MoveRight Init}
-   if  Init.x>0 then {AdjoinAt Init x (Init.x)-1} %{MoveRGUI}
+   if  {And (Init.x>0) MapTrainers.y.(x-1)} then {AdjoinAt Init x (Init.x)-1} %{MoveRGUI}
       else Init
    end
 end
 
 declare
 fun {MoveUp Init}
-   if Init.y<{Width Map} then {AdjoinAt Init y (Init.y)+1} %{MoveUGUI}
+   if {And Init.y<{Width Map} MapTrainers.(y-1).x} then {AdjoinAt Init y (Init.y)-1} %{MoveUGUI}
       else Init
    end  
 end
 
 declare
 fun {MoveDown Init}
-   if Init.y>0 then {AdjoinAt Init y (Init.y)-1} %{MoveDGUI}
+   if {And Init.y>0 MapTrainers.(y+1).x} then {AdjoinAt Init y (Init.y)+1} %{MoveDGUI}
       else Init
    end 
 end
@@ -344,22 +343,25 @@ fun {SetXp Init X}
 end
 
 declare
-fun {LevelUp Init}
-   case Init.lx of 5 then if Init.xp>5 then {AdjoinList Init [xp#(xp mod 5) lx#6 hp#22]}  else Init end
-   [] 6 then if Init.xp>12 then {AdjoinList Init [xp#0 lx#6 hp#22]}  else Init end
-   [] 7 then if Init.xp>5 then {AdjoinAt Init lx ({AdjoinAt Init xp ((Init.xp) mod 5)}.lx)+1}  else Init end
-   [] 8 then 
-   [] 9 then
-   [] 10 then
-      
-      
+fun {SetHp Init X}
+   {AdjoinAt Init hp (Init.hp)-X}
 end
 
 
 declare
-fun {SetHp Init X}
-   {AdjoinAt Init hp (Init.hp)-X}
+fun {LevelUp Init}
+   case Init.lx of 5 then if Init.xp>5 then {AdjoinList Init [xp#(Init.xp mod 5) lx#6 hp#22]}  else Init end
+   [] 6 then if Init.xp>12 then {AdjoinList Init [xp#(Init.xp mod 12) lx#7 hp#24]}  else Init end
+   [] 7 then if Init.xp>20 then {AdjoinList Init [xp#(Init.xp mod 20) lx#8 hp#26]}  else Init end
+   [] 8 then if Init.xp>30 then {AdjoinList Init [xp#(Init.xp mod 30) lx#9 hp#28]}  else Init end
+   [] 9 then if Init.xp>50 then {AdjoinList Init [xp#(Init.xp mod 50) lx#10 hp#30]}  else Init end
+   [] 10 then Init   end
+   
 end
+
+declare
+fun {Combat Msg Init}
+   case Msg 
 
 
 %%%%%%%%%%%%% Fonction mere Pokemoz %%%%%%%%%%%%%%%%%%
@@ -370,30 +372,25 @@ fun {FPokemoz Msg Init}
    of sethp(X) then {SetHp Init X} 
    [] setlx(X) then {SetLx Init X} 
    [] setxp(X) then {SetXp Init X} 
-   [] levelup(Xp Lx) then {LevelUp Init Xp Lx}
-   [] get(X) then X=Init Init 
+   [] levelup then {LevelUp Init}
+   [] get(X) then X=Init Init
+   [] attack then {Attack 
+      
    end
 end
 
 
 declare P1 P2 P3
 P1={NewPortObject FPokemoz {CreatePokemoz "fire" "Buloz"}}
-P2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+P2={NewPortObject FPokemoz p(type:"Fire" name:"Bulboz" hp:20 lx:5 xp:6)}
 P3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
 
 
 local X in {Send P1 get(X)} {Browse X} end
-{Send P1 sethp(5)}
-{Send T1 moveLeft}
-local X in {Send T1 get(X)} {Browse X} end
-local X in {Send T2 get(X)} {Browse X} end
-{Send T2 moveUp}
-{Send T2 moveLeft}
-local X in {Send T2 get(X)} {Browse X} end
-local X in {Send T3 get(X)} {Browse X} end
-{Send T3 moveUp}
-{Send T3 moveLeft}
-local X in {Send T3 get(X)} {Browse X} end
+local X in {Send P2 get(X)} {Browse X} end
+{Send P1 levelup}
+{Send P2 levelup}
+
 
 
 
