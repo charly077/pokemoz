@@ -336,8 +336,8 @@ end
 
 declare
 fun {LevelUp Init}
-   case Init.lx of 5 then if Init.xp>5 then {AdjoinList Init [Init.]}  else Init end
-   [] 6 then if Init.xp>12 then {AdjoinAt Init lx ({AdjoinAt Init xp ((Init.xp) mod 12)}.lx)+1}  else Init end
+   case Init.lx of 5 then if Init.xp>5 then {AdjoinList Init [xp#(xp mod 5) lx#6 hp#22]}  else Init end
+   [] 6 then if Init.xp>12 then {AdjoinList Init [xp#0 lx#6 hp#22]}  else Init end
    [] 7 then if Init.xp>5 then {AdjoinAt Init lx ({AdjoinAt Init xp ((Init.xp) mod 5)}.lx)+1}  else Init end
    [] 8 then 
    [] 9 then
