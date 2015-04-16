@@ -56,7 +56,7 @@ N=7
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% Création graphique de la map %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-proc{CreateMap Map Canvas}
+proc{CreateMapGraphique Map Canvas}
    %premièrement pour faire une fonction récursif je préfère travailler en liste
    MapList
    %Fonction pour créer une ligne :)
@@ -138,7 +138,7 @@ in
    WindowMap = {QTk.build Desc}
 
    % Appel de la fonction qui va dessiner la map
-   {CreateMap Map CanvasMap}
+   {CreateMapGraphique Map CanvasMap}
    {WindowMap show}
 
    % Affectation des touches au mouvement du personnage principal
@@ -293,13 +293,13 @@ in
    {Window show}
    P={NewPort S}
    {BulbasozHandle create(image 150 150 image:Bulbasoz handle:BulbasozImage)}
-   {BulbasozHandle bind(event:"<1>" action:proc{$} {OztirtleImage delete} {CharmandozImage delete} {Send P bulbasoz} end)}
+   {BulbasozHandle bind(event:"<1>" action:proc{$} {OztirtleImage delete} {CharmandozImage delete} {Send P "Bulbasoz"} end)}
    
    {OztirtleHandle create(image 150 150 image:Oztirtle handle:OztirtleImage)}
-   {OztirtleHandle bind(event:"<1>" action:proc{$} {BulbasozImage delete} {CharmandozImage delete} {Send P oztirtle} end)}
+   {OztirtleHandle bind(event:"<1>" action:proc{$} {BulbasozImage delete} {CharmandozImage delete} {Send P "Oztirtle"} end)}
    
    {CharmandozHandle create(image 150 150 image:Charmandoz handle:CharmandozImage)}
-   {CharmandozHandle bind(event:"<1>" action:proc{$} {OztirtleImage delete} {BulbasozImage delete} {Send P charmandoz} end)}
+   {CharmandozHandle bind(event:"<1>" action:proc{$} {OztirtleImage delete} {BulbasozImage delete} {Send P "Charmandoz"} end)}
 
    case S of X|T then
       {Delay 1000}
@@ -467,24 +467,24 @@ end
 
 {Browse {CreateMap}}
 
-declare T1 T2 T3
-Maptrainers={NewPortObject FMap {CreateMap}}
-Map={NewPortObject FMap {CreateMap}}
+% declare T1 T2 T3
+% Maptrainers={NewPortObject FMap {CreateMap}}
+% Map={NewPortObject FMap {CreateMap}}
 
-local X in {Send Map get(X)} {Browse X} end
-local X in {Send Maptrainers get(X)} {Browse X} end
-{Send Map setMap(5 6)} 
-{Send Maptrainers setMap(5 6)} 
-local X in {Send Map get(X)} {Browse X} end
-local X in {Send Maptrainers get(X)} {Browse X} end
+% local X in {Send Map get(X)} {Browse X} end
+% local X in {Send Maptrainers get(X)} {Browse X} end
+% {Send Map setMap(5 6)} 
+% {Send Maptrainers setMap(5 6)} 
+% local X in {Send Map get(X)} {Browse X} end
+% local X in {Send Maptrainers get(X)} {Browse X} end
 
-T3={NewPortObject FTrainer {CreateRandTrainer 4}}
+% %T3={NewPortObject FTrainer {CreateRandTrainer 4}}
 
-{Browse {SetMapTrainer 4 3}}
-{Browse {SetMapTrainer 3 6}}
-{Browse {SetMapTrainer 5 6}}
+% {Browse {SetMapTrainer 4 3}}
+% {Browse {SetMapTrainer 3 6}}
+% {Browse {SetMapTrainer 5 6}}
 
-{Browse MapTrainer}
+% {Browse MapTrainer}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -516,53 +516,54 @@ Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
 
 %Creation d'un record trainer spécifique
 declare
-fun {CreateTrainer Name Pokemoz X Y Speed Type}
-   trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 handle:0 type:Type)
+fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
+   {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
 end
 
-declare
-T1={CreateTrainer "Jean" "dfss" 4 6 4 "wild"}
-{Browse T1}
+%declare
+%T1={CreateTrainer "Jean" "dfss" 4 6 4 "wild"}
+%{Browse T1}
 
 % Création d'un record trainer sauvage aleatoire
 declare
-fun {CreateRandTrainer  Speed Number}
+fun {CreateRandTrainer  Speed Number Canvas}
    local Name X Y Pokemoz Type in
       Name = Names.Number
       Pokemoz = Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
       X=({OS.rand} mod 7)+1
       Y=({OS.rand} mod 7)+1
       Type="wild"
-      {CreateTrainer Name Pokemoz X Y Speed Type}
+      {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
    end
 end
 
-%test
-declare
-T1={CreateRandTrainer 4  1}
-{Browse T1}
+% %test
+% declare
+% T1={CreateRandTrainer 4  1}
+% {Browse T1}
 
 
 %Creation d'un record trainers contenant des trainers aleatoires
 declare
-fun{CreateOtherTrainer Number Speed}
+fun{CreateOtherTrainer Number Speed Canvas}
    local R
-      fun{CreateOtherTrainers Number Speed Trainers}
-	 if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed}}}
+      fun{CreateOtherTrainers Number Speed Trainers Canvas}
+	 if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed Canvas}}}
 	 else Trainers
 	 end
       end
       in {MakeRecord trainers [1] R}
-	 {CreateOtherTrainers Number Speed R}	 
+	 {CreateOtherTrainers Number Speed R Canvas}	 
       end
 end
 
 
-%test
-declare
-Trainers = {CreateOtherTrainer 3 4}
-{Browse Trainers}
-{Browse Trainers.3}
+% %test
+% declare
+% Trainers = {CreateOtherTrainer 3 4}
+% {Browse Trainers}
+% {Browse Trainers.3}
+
 
 
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
@@ -619,25 +620,25 @@ fun {FTrainer Msg Init}
 end
 
 
-% test
+% %test
 
-declare T1 T2 T3
-T1={NewPortObject FTrainer {CreateRandTrainer 1 4}}
-T2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
-T3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+% declare T1 T2 T3
+% T1={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+% T2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+% T3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
 
-local X in {Send T1 get(X)} {Browse X} end
-{Send T1 setauto}
-{Send T1 moveLeft}
-local X in {Send T1 get(X)} {Browse X} end
-local X in {Send T2 get(X)} {Browse X} end
-{Send T2 moveUp}
-{Send T2 moveLeft}
-local X in {Send T2 get(X)} {Browse X} end
-local X in {Send T3 get(X)} {Browse X} end
-{Send T3 moveUp}
-{Send T3 moveLeft}
-local X in {Send T3 get(X)} {Browse X} end
+% local X in {Send T1 get(X)} {Browse X} end
+% {Send T1 setauto}
+% {Send T1 moveLeft}
+% local X in {Send T1 get(X)} {Browse X} end
+% local X in {Send T2 get(X)} {Browse X} end
+% {Send T2 moveUp}
+% {Send T2 moveLeft}
+% local X in {Send T2 get(X)} {Browse X} end
+% local X in {Send T3 get(X)} {Browse X} end
+% {Send T3 moveUp}
+% {Send T3 moveLeft}
+% local X in {Send T3 get(X)} {Browse X} end
 
 
 
@@ -710,10 +711,10 @@ fun {FPokemoz Msg Init}
 end
 
 
-declare P1 P2 P3
-P1={NewPortObject FPokemoz {CreatePokemoz "fire" "Buloz"}}
-P2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
-P3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+% declare P1 P2 P3
+% P1={NewPortObject FPokemoz {CreatePokemoz "fire" "Buloz"}}
+% P2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+% P3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
 
 
 local X in {Send P1 get(X)} {Browse X} end
@@ -739,3 +740,14 @@ local X in {Send T3 get(X)} {Browse X} end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+declare
+PortPersoPrincpal
+CanvasMap
+%Création de la map
+Map = {CreateMap}
+
+
+CanvasMap = {StartGame Map MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal}
+PortPersoPrincpal={NewPortObject FTrainer {CreateTrainer "Moi" p(name:(p(name:{Choose})) 7 7 2 persoPrincipal) CanvasMap}} % ATTENTION IL FAUT CREER LE POKEMON AVEC LES FONCTIONS
+
