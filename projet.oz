@@ -572,25 +572,25 @@ end
 declare
 fun {MoveLeft Init}
    local B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse {And Init.x<7 B}}
-      if {And Init.x<7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)-1 Init.y)} {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
-					else Init
-					end
+      if {And Init.x>0 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)-1 Init.y)} {Move Init moveLeft} {AdjoinAt Init x (Init.x)+1}
+      else Init
       end
+   end
 end
 
 declare
 fun {MoveRight Init}
    local B in {Send MapTrainers check((Init.x)+1 Init.y B)}
-   if  {And (Init.x>0) B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)+1 Init.y)} {AdjoinAt Init x (Init.x)-1}  %{MoveRGUI}
+      if  {And (Init.x<7) B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)+1 Init.y)} {Move Init moveRight} {AdjoinAt Init x (Init.x)-1}
       else Init
-   end
+      end
    end
 end
 
 declare
 fun {MoveUp Init}
    local B in {Send MapTrainers check((Init.x) (Init.y)-1 B)} 
-   if {And Init.y>0 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)-1)} {AdjoinAt Init y (Init.y)-1} %{MoveUGUI}
+      if {And Init.y<0 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)-1)} {Move Init moveUp} {AdjoinAt Init y (Init.y)-1}
       else Init
    end %% truc chelou il n'accepte pas {Width Map} surement car record de record
    end
@@ -599,9 +599,9 @@ end
 declare
 fun {MoveDown Init}
    local B in {Send MapTrainers check((Init.x) (Init.y)+1 B)}
-   if {And Init.y<7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)+1)} {AdjoinAt Init y (Init.y)+1} %{MoveDGUI}
+      if {And Init.y>7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)+1)} {Move Init moveDown} {AdjoinAt Init y (Init.y)+1}
       else Init
-   end
+      end
    end
 end
 
@@ -758,21 +758,16 @@ declare
 PortPersoPrincipal
 CanvasMap
 Name
+XMap
 %Création de la map
-Map =  map(r(1 1 1 0 0 0 0)
-	  r(1 1 1 0 0 1 1)
-	  r(1 1 1 0 0 1 1)
-	  r(0 0 0 0 0 1 1)
-	  r(0 0 0 1 1 1 1)
-	  r(0 0 0 1 1 0 0)
-	  r(0 0 0 0 0 0 0))
+
+{Send Map get(XMap)}
 
 
-
-
-CanvasMap = {StartGame Map (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
+CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
 
 Name = {Choose}
-PortPersoPrincpal={NewPortObject FTrainer {CreateTrainer "Moi" p(name:Name) 7 7 2 persoPrincipal CanvasMap} } % ATTENTION IL FAUT CREER LE POKEMON AVEC LES FONCTIONS
+{Browse XMap}
+PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" p(name:Name) 7 7 2 persoPrincipal CanvasMap} } % ATTENTION IL FAUT CREER LE POKEMON AVEC LES FONCTIONS
 
 {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
