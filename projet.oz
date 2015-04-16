@@ -438,7 +438,7 @@ end
 % Verifie si la case de coordonnee (X,Y) est vide
 declare
 fun {Check X Y Init}
-   Init.Y.X==1  
+   Init.Y.X==0  
 end
 
 
@@ -446,9 +446,8 @@ end
 % Fonction qui modifie les coordonnee (X,Y) de la Map Init
 declare
 fun {SetMap X Y Init}
-   {Browse {Check X Y Init}}
-   if {Check X Y Init} then {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)-1}}
-   else {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)+1}}
+   if {Check X Y Init} then {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)+1}}
+   else {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)-1}}
    end
 end
 
@@ -459,43 +458,28 @@ declare FMap in
 fun {FMap Msg Init}
    case Msg
    of  setMap(X Y) then {SetMap X Y Init}
-   %[] check(X Y) then {Check X Y Init}setMap(X Y) then {SetMap X Y Init}
+   [] check(X Y B) then B={Check X Y Init} Init
    [] get(X) then X=Init Init 
    end
 end
 
 
-% test
+declare MapTrainers Map
+MapTrainers={NewPortObject FMap {CreateMap}}
+Map={NewPortObject FMap {CreateMap}}
 
-%{Browse {CreateMap}}
-
-% declare T1 T2 T3
-% Maptrainers={NewPortObject FMap {CreateMap}}
-% Map={NewPortObject FMap {CreateMap}}
-
-% local X in {Send Map get(X)} {Browse X} end
-% local X in {Send Maptrainers get(X)} {Browse X} end
+%test
+% {Browse {Check 5 6 Maptrainers}} % Idiot ne peut pas marcher car Maptrainers est un port
+local X in {Send Map get(X)} {Browse X} end
+ local X in {Send MapTrainers get(X)} {Browse X} end
 % {Send Map setMap(5 6)} 
-% {Send Maptrainers setMap(5 6)} 
+ {Send MapTrainers setMap(2 2)}
+
+% local B in {Send Maptrainers check(5 6 B)} {Browse B} end
+% local B in {Send MapTrainers check(6 6 B)} {Browse B} end
 % local X in {Send Map get(X)} {Browse X} end
-% local X in {Send Maptrainers get(X)} {Browse X} end
+%local X in {Send MapTrainers get(X)} {Browse X} end
 
-{Browse {Send Maptrainers check(5 7)}}
-local X in {Send Map get(X)} {Browse X} end
-local X in {Send Maptrainers get(X)} {Browse X} end
-{Send Map setMap(5 6)} 
-{Send Maptrainers setMap(5 6)} 
-local X in {Send Map get(X)} {Browse X} end
-local X in {Send Maptrainers get(X)} {Browse X} end
-
-
-% %T3={NewPortObject FTrainer {CreateRandTrainer 4}}
-
-% {Browse {SetMapTrainer 4 3}}
-% {Browse {SetMapTrainer 3 6}}
-% {Browse {SetMapTrainer 5 6}}
-
-% {Browse MapTrainer}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -526,11 +510,15 @@ Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
 
 
 %Creation d'un record trainer spécifique
+
 declare
 fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
-   {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
+   local B in {Send MapTrainers check(X Y B)}
+      if B then {Send MapTrainers setMap(X Y)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
+      else {CreateTrainer Name Pokemoz X+1 Y Speed Type} %% attention pas top car je ne verrifie pas si on est encore dans le terrain
+      end
+   end
 end
-
 
 %declare
 %T1={CreateTrainer "Jean" "dfss" 4 6 4 "wild"}
@@ -582,30 +570,38 @@ end
 
 declare
 fun {MoveLeft Init}
-   if {And Init.x<{Width Map.1} {Send MapTrainers check((Init.x)+1 Init.y)} then {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
-      else Init
-   end 
+   local B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse {And Init.x<7 B}}
+      if {And Init.x<7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)-1 Init.y)} {AdjoinAt Init x (Init.x)+1} %{MoveLGUI}
+					else Init
+					end
+      end
 end
 
 declare
 fun {MoveRight Init}
-   if  {And (Init.x>0){Send MapTrainers check((Init.x)+1 Init.y)}} then {AdjoinAt Init x (Init.x)-1} %{MoveRGUI}
+   local B in {Send MapTrainers check((Init.x)+1 Init.y B)}
+   if  {And (Init.x>0) B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)+1 Init.y)} {AdjoinAt Init x (Init.x)-1}  %{MoveRGUI}
       else Init
+   end
    end
 end
 
 declare
 fun {MoveUp Init}
-   if {And Init.y<{Width Map} MapTrainers.(y-1).x} then {AdjoinAt Init y (Init.y)-1} %{MoveUGUI}
+   local B in {Send MapTrainers check((Init.x) (Init.y)-1 B)} 
+   if {And Init.y>0 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)-1)} {AdjoinAt Init y (Init.y)-1} %{MoveUGUI}
       else Init
-   end  
+   end %% truc chelou il n'accepte pas {Width Map} surement car record de record
+   end
 end
 
 declare
 fun {MoveDown Init}
-   if {And Init.y>0 MapTrainers.(y+1).x} then {AdjoinAt Init y (Init.y)+1} %{MoveDGUI}
+   local B in {Send MapTrainers check((Init.x) (Init.y)+1 B)}
+   if {And Init.y<7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)+1)} {AdjoinAt Init y (Init.y)+1} %{MoveDGUI}
       else Init
-   end 
+   end
+   end
 end
 
 %%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
@@ -634,16 +630,24 @@ end
 
 % %test
 
-% declare T1 T2 T3
-% T1={NewPortObject FTrainer {CreateRandTrainer 1 4}}
-% T2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
-% T3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+local X in {Send MapTrainers get(X)} {Browse X} end
+declare T1
+T1={NewPortObject FTrainer {CreateTrainer "Jean" "Bulboz" 7 7 2 "wild"}}
+declare T2
+T2={NewPortObject FTrainer {CreateTrainer "Jean2" "Bulboz" 5 5 2 "wild"}}
+declare T3
+T3={NewPortObject FTrainer {CreateTrainer "Jean3" "Bulboz" 5 5 2 "wild"}}
 
-% local X in {Send T1 get(X)} {Browse X} end
+local X in {Send T1 get(X)} {Browse X} end
+local X in {Send T2 get(X)} {Browse X} end
+local X in {Send T3 get(X)} {Browse X} end
 % {Send T1 setauto}
-% {Send T1 moveLeft}
+{Send T3 moveRight} %bug collision
+{Send T3 moveUp}
+{Send T3 moveLeft} 
+{Send T3 moveDown}
 % local X in {Send T1 get(X)} {Browse X} end
-% local X in {Send T2 get(X)} {Browse X} end
+
 % {Send T2 moveUp}
 % {Send T2 moveLeft}
 % local X in {Send T2 get(X)} {Browse X} end
