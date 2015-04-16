@@ -313,6 +313,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 proc {Demo}
    PersoPrincipal
+   PersoSecondaire
    CanvasMap
    Combat1
    Combat2
@@ -470,10 +471,10 @@ Map={NewPortObject FMap {CreateMap}}
 
 %test
 % {Browse {Check 5 6 Maptrainers}} % Idiot ne peut pas marcher car Maptrainers est un port
-local X in {Send Map get(X)} {Browse X} end
- local X in {Send MapTrainers get(X)} {Browse X} end
+%local X in {Send Map get(X)} {Browse X} end
+% local X in {Send MapTrainers get(X)} {Browse X} end
 % {Send Map setMap(5 6)} 
- {Send MapTrainers setMap(2 2)}
+% {Send MapTrainers setMap(2 2)}
 
 % local B in {Send Maptrainers check(5 6 B)} {Browse B} end
 % local B in {Send MapTrainers check(6 6 B)} {Browse B} end
@@ -515,7 +516,7 @@ declare
 fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
    local B in {Send MapTrainers check(X Y B)}
       if B then {Send MapTrainers setMap(X Y)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
-      else {CreateTrainer Name Pokemoz X+1 Y Speed Type} %% attention pas top car je ne verrifie pas si on est encore dans le terrain
+      else {CreateTrainer Name Pokemoz X+1 Y Speed Type Canvas} %% TODO attention pas top car je ne verrifie pas si on est encore dans le terrain
       end
    end
 end
@@ -548,7 +549,7 @@ declare
 fun{CreateOtherTrainer Number Speed Canvas}
    local R
       fun{CreateOtherTrainers Number Speed Trainers Canvas}
-	 if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed Canvas}}}
+	 if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed Canvas}} Canvas}
 	 else Trainers
 	 end
       end
@@ -630,22 +631,22 @@ end
 
 % %test
 
-local X in {Send MapTrainers get(X)} {Browse X} end
-declare T1
-T1={NewPortObject FTrainer {CreateTrainer "Jean" "Bulboz" 7 7 2 "wild"}}
-declare T2
-T2={NewPortObject FTrainer {CreateTrainer "Jean2" "Bulboz" 5 5 2 "wild"}}
-declare T3
-T3={NewPortObject FTrainer {CreateTrainer "Jean3" "Bulboz" 5 5 2 "wild"}}
+% local X in {Send MapTrainers get(X)} {Browse X} end
+% declare T1
+% T1={NewPortObject FTrainer {CreateTrainer "Jean" "Bulboz" 7 7 2 "wild"}}
+% declare T2
+% T2={NewPortObject FTrainer {CreateTrainer "Jean2" "Bulboz" 5 5 2 "wild"}}
+% declare T3
+% T3={NewPortObject FTrainer {CreateTrainer "Jean3" "Bulboz" 5 5 2 "wild"}}
 
-local X in {Send T1 get(X)} {Browse X} end
-local X in {Send T2 get(X)} {Browse X} end
-local X in {Send T3 get(X)} {Browse X} end
-% {Send T1 setauto}
-{Send T3 moveRight} %bug collision
-{Send T3 moveUp}
-{Send T3 moveLeft} 
-{Send T3 moveDown}
+% local X in {Send T1 get(X)} {Browse X} end
+% local X in {Send T2 get(X)} {Browse X} end
+% local X in {Send T3 get(X)} {Browse X} end
+% % {Send T1 setauto}
+% {Send T3 moveRight} %bug collision
+% {Send T3 moveUp}
+% {Send T3 moveLeft} 
+% {Send T3 moveDown}
 % local X in {Send T1 get(X)} {Browse X} end
 
 % {Send T2 moveUp}
@@ -677,7 +678,7 @@ fun{CreatePokemoz Type Name Hp Lx}
 end
 
 declare
-fun{CreatePokemoz Type Name}
+fun{CreatePokemoz5 Type Name}
    p(type:Type name:Name hp:20 lx:5 xp:0)
 end
 
@@ -711,9 +712,6 @@ fun {LevelUp Init}
    
 end
 
-declare
-fun {Combat Msg Init}
-   case Msg 
 
 
 %%%%%%%%%%%%% Fonction mere Pokemoz %%%%%%%%%%%%%%%%%%
@@ -739,10 +737,10 @@ end
 
 
 
-local X in {Send P1 get(X)} {Browse X} end
-local X in {Send P2 get(X)} {Browse X} end
-{Send P1 levelup}
-{Send P2 levelup}
+% local X in {Send P1 get(X)} {Browse X} end
+% local X in {Send P2 get(X)} {Browse X} end
+% {Send P1 levelup}
+% {Send P2 levelup}
 
 
 
@@ -757,12 +755,24 @@ local X in {Send P2 get(X)} {Browse X} end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 declare
-PortPersoPrincpal
+PortPersoPrincipal
 CanvasMap
+Name
 %Création de la map
-Map = {CreateMap}
+Map =  map(r(1 1 1 0 0 0 0)
+	  r(1 1 1 0 0 1 1)
+	  r(1 1 1 0 0 1 1)
+	  r(0 0 0 0 0 1 1)
+	  r(0 0 0 1 1 1 1)
+	  r(0 0 0 1 1 0 0)
+	  r(0 0 0 0 0 0 0))
 
 
-CanvasMap = {StartGame Map MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal}
-PortPersoPrincpal={NewPortObject FTrainer {CreateTrainer "Moi" p(name:(p(name:{Choose})) 7 7 2 persoPrincipal) CanvasMap}} % ATTENTION IL FAUT CREER LE POKEMON AVEC LES FONCTIONS
 
+
+CanvasMap = {StartGame Map (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
+
+Name = {Choose}
+PortPersoPrincpal={NewPortObject FTrainer {CreateTrainer "Moi" p(name:Name) 7 7 2 persoPrincipal CanvasMap} } % ATTENTION IL FAUT CREER LE POKEMON AVEC LES FONCTIONS
+
+{CreateTrainer Name Pokemoz X Y Speed Type Canvas}
