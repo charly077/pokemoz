@@ -520,6 +520,7 @@ Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
 declare
 fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
    {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
+end
 
 
 %declare
