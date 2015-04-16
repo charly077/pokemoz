@@ -4,9 +4,7 @@ declare
 
 % Création des images pour l'herbe et la route avec leur Tag (je ne sais pas si ça va être utile par la suite :) )
 GrassImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/herbe.gif')}
-GrassTag
 RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
-RoadTag
 
 % Création des images des pokémons
 Bulbasoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Bulbasoz.gif')}
@@ -14,14 +12,14 @@ Oztirtle = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Oztirtle.gif
 Charmandoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Charmandoz.gif')}
 
 
-% Création des images des Dresseurs (Todo Ajouter les dresseurs Grande image 300/300 pour perso principal)
+% Création des images des Dresseurs
 PersoPrincipalImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
 PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipalGrand.gif')}
 PersoSauvageImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvage.gif')}
 PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvageGrand.gif')}
 
 
-% Création des variables utilile pour la gestion de la fenêtre
+% Création des variables utililes pour la gestion de la fenêtre
 HeightWidth=60
 AddXY=HeightWidth div 2
 WidthBetween= HeightWidth + HeightWidth div 6
@@ -41,9 +39,9 @@ proc{CreateMap Map Canvas}
 	 [] T|H then
 	    %dessiner le carré
 	    if (T==1) then
-	       {Canvas create(image X Y image:GrassImage tag:grassTag)}
+	       {Canvas create(image X Y image:GrassImage)}
 	    else
-	       {Canvas create(image X Y image:RoadImage tag:roadTag)}
+	       {Canvas create(image X Y image:RoadImage)}
 	    end
 	    %rappeler la fonction
 	    {ProcRecursLine H X+WidthBetween Y}
@@ -96,9 +94,6 @@ in
    WindowMap = {QTk.build Desc}
    %C'est ici qu'on peut dessiner la map :)
    {CreateMap Map CanvasMap}
-   %Création de Tag pour l'herbe et la route
-   GrassTag={CanvasMap newTag($)}
-   RoadTag={CanvasMap newTag($)}
    {WindowMap show}
 
    % Affectation des touches au personnage principal
