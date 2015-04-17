@@ -266,6 +266,10 @@ fun {StartCombat AttaquePort AttaquantPort P}
    CanvasAttaquant
    CanvasPersoPrincipal
    PlaceHolder
+   LabelAttaquant
+   LabelPersoPrincipal
+   Attaque
+   Attaquant
    Combat = td(title:"Pokemoz, the fight can begin !"
 	       label(handle:LabelAttaquant glue:e)
 	       canvas(handle:CanvasAttaquant width:700 height:300 bg:white)
@@ -273,7 +277,6 @@ fun {StartCombat AttaquePort AttaquantPort P}
 	       label(handle:LabelPersoPrincipal glue:w)
 	       button(text:"Close" action:toplevel#close width:10 glue:we bg:white)
 	       placeholder(handle:PlaceHolder))
-   Attaquant
    Label
 in
    WindowCombat = {QTk.build Combat}
@@ -293,8 +296,8 @@ in
    end
    combat(canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal)
 end
-
-fun {SetCombatState Combat StateAttaque StateAttaquant}
+declare
+proc {SetCombatState Combat StateAttaque StateAttaquant}
    fun{CreateString List}
       case List of nil then nil
       [] X|L then
@@ -317,8 +320,8 @@ in
    
    MsgAttaque = {CreateString [ "Name : " StateAttaque.name " xp : " Xp2 " HP : " Hp1]}
    
-   {Combat.LabelAttaquant SetText(MsgAttaquant)}
-   {Combat.LabetAttaque SetText(MsgAttaque)}
+   {Combat.labelAttaquant set(MsgAttaquant)}
+   {Combat.labetPersoPrincipal set(MsgAttaque)}
 end
 
 
@@ -399,10 +402,10 @@ in
 
    %TODO Changer les deux exemple suivant car ça doit être des PokemozPort
    %exemple de début de combat contre un pokémon sauvage
-   Combat1 = {StartCombat t(p:(p(name:"Bulbasoz"))) p(name:"Oztirtle")}
+%   Combat1 = {StartCombat t(p:(p(name:"Bulbasoz"))) p(name:"Oztirtle")}
 
    %exemple de combat contre un personnage
-   Combat2 = {StartCombat t(p:p(name:"Bulbasoz")) t(p:p(name:"Charmandoz"))}
+%   Combat2 = {StartCombat t(p:p(name:"Bulbasoz")) t(p:p(name:"Charmandoz"))}
 end
 
 
@@ -910,7 +913,7 @@ declare
 %TODO TEST DES DEUX FONCTIONS
 proc{CombatWild X Y}
    % La les variable doivent être 2 pokemoz
-   fun{CombatRec X Y S Combat}
+   proc{CombatRec X Y S Combat}
       P1 P2 in
       case S of nil then skip
       [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
@@ -927,8 +930,8 @@ proc{CombatWild X Y}
 	 {Send X getState(P1)}
 	 {Send Y getState(P2)}
 	 {SetCombatState Combat P1 P2}
-	 if ({And StillAlife1 StillAlife2})
-	    {CombatRec X Y Sr}
+	 if ({And StillAlife1 StillAlife2}) then
+	    {CombatRec X Y Sr Combat}
 	 end
       end
    end
@@ -937,11 +940,11 @@ in
    P={NewPort S}
    {Send X getState(StateX)} 
    {Send Y getState(StateY)}
-   if ({And StateX.p.HP>0 StateY.HP>0})
+   if ({And StateCombat.hp>0 StateY.hp>0}) then
       Combat = {StartCombat StateX StateY P }
       {Send StateX.p getState(StateCombat)}
       {SetCombatState Combat StateCombat StateY}
-      thread {CombatRec StateX.p Y Combat} end
+      thread {CombatRec StateX.p Y S Combat} end
    end
 end
 
@@ -951,7 +954,8 @@ end
 %
 proc{CombatPerso X Y}
    % La les variable doivent être 2 pokemoz
-   fun{CombatRec X Y S}
+   proc{CombatRec X Y S Combat}
+      P1 P2 in
       case S of nil then skip
       [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
 	 {Send X attack(Y Succeed1)}
@@ -963,20 +967,26 @@ proc{CombatPerso X Y}
 	 else
 	    {Send X gagneContre(Y)}
 	 end
-	 
-	 if ({And StillAlife1 StillAlife2})
-	    {CombatRec X Y Sr}
+	 % Remise à jour des valeurs
+	 {Send X getState(P1)}
+	 {Send Y getState(P2)}
+	 {SetCombatState Combat P1 P2}
+	 if ({And StillAlife1 StillAlife2}) then
+	    {CombatRec X Y Sr Combat}
 	 end
       end
    end
-   P S StateX StateY
+   P S StateX StateY StateCombat1 StateCombat2 Combat
 in
    P={NewPort S}
    {Send X getState(StateX)}
    {Send Y getState(StateY)}
-   if ({And StateX.p.HP>0 StateY.HP>0})
-      {StartCombat StateX StateY P}
-      thread {CombatRec StateX.p StateY.p} end
+   {Send StateX.p getState(StateCombat1)}
+   {Send StateY.p getState(StateCombat2)}
+   if ({And StateCombat1.hp>0 StateCombat2.hp>0}) then
+      Combat = {StartCombat StateX StateY P}
+      {SetCombatState Combat StateCombat1 StateCombat2} 
+      thread {CombatRec StateX.p StateY.p S Combat} end
    end
 end
 
