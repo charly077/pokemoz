@@ -505,8 +505,8 @@ Map={NewPortObject FMap {CreateMap}}
 % {Send Map setMap(5 6)} 
 % {Send MapTrainers setMap(2 2)}
 
-% local B in {Send MapTrainers checkin(5 10 B)} {Browse B} end
-% local B in {Send MapTrainers check(6 6 B)} {Browse B} end
+%local B in {Send MapTrainers checkin(5  B)} {Browse B} end
+ local B in {Send MapTrainers check((0-1) (2-3) B)} {Browse B} end
 % local X in {Send Map get(X)} {Browse X} end
 %local X in {Send MapTrainers get(X)} {Browse X} end
 
@@ -737,7 +737,6 @@ fun {SetHp Init X}
 end
 
 
-
 declare
 fun {LevelUp Init}
    case Init.lx of 5 then if Init.xp>5 then {AdjoinList Init [xp#(Init.xp mod 5) lx#6 hp#22]}  else Init end
@@ -749,13 +748,17 @@ fun {LevelUp Init}
    
 end
 
-% declare
-% fun{Damage Lx Type Init}
-%    {Send Combat updateaction}
-%    if(((6+Lx-Init.lx)*9)>({OS.rand} mod 100)) then {AdjoinAt Init hp ((Init.hp)-{Degat Type Init})}
-%       else
+declare
+fun{Damage Lx Type Init}
+   if(((6+Lx-Init.lx)*9)>({OS.rand} mod 100)) then {AdjoinAt Init hp ((Init.hp)-{Degat Type Init})}
+   else Init
+   end
+end
 
-% end
+declare
+fun{Gain Lx Init}
+   
+   
 
 
 
