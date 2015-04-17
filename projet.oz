@@ -230,9 +230,13 @@ proc {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaq
    PokemozAttaquantName
    PokemozPersoPrincipalName
    ImageCanvasPersoPrincipal
+   X
 in
-   case Attaquant of p(name:X) then PokemozAttaquantName = X end
-   case Attaque of t(p:Z) then X in {Send Z getState(X)} PokemozPersoPrincipalName = X.name end 
+   {Browse Attaquant}
+   {Browse Attaque}
+   PokemozAttaquantName = Attaquant.name
+   {Send Attaque.p getState(X)}
+   PokemozPersoPrincipalName = X.name 
    % On peut mettre directement le pokemoz
    {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
    % Mettre l'image du dresseur pendant une seconde
@@ -318,10 +322,10 @@ in
    {Int.toString StateAttaque.xp  Xp2}
    {Int.toString StateAttaque.hp  Hp2}
    
-   MsgAttaque = {CreateString [ "Name : " StateAttaque.name " xp : " Xp2 " HP : " Hp1]}
+   MsgAttaque = {CreateString [ "Name : " StateAttaque.name " xp : " Xp2 " HP : " Hp2]}
    
    {Combat.labelAttaquant set(MsgAttaquant)}
-   {Combat.labetPersoPrincipal set(MsgAttaque)}
+   {Combat.labelPersoPrincipal set(MsgAttaque)}
 end
 
 
@@ -542,7 +546,7 @@ Map={NewPortObject FMap {CreateMap}}
 % {Send MapTrainers setMap(2 2)}
 
 %local B in {Send MapTrainers checkin(5  B)} {Browse B} end
- local B in {Send MapTrainers check((0-1) (2-3) B)} {Browse B} end
+% local B in {Send MapTrainers check((0-1) (2-3) B)} {Browse B} end
 % local X in {Send Map get(X)} {Browse X} end
 %local X in {Send MapTrainers get(X)} {Browse X} end
 
@@ -755,7 +759,12 @@ fun{CreatePokemoz Type Name Hp Lx}
 end
 
 declare
-fun{CreatePokemoz5 Type Name}
+fun{CreatePokemoz5 Name}
+   Type in
+   case Name of "Bulbasoz" then Type=grass
+   [] "Oztirtle" then Type=water
+   [] "Charmandoz" then Type=fire
+   end
    p(type:Type name:Name hp:20 lx:5 xp:0)
 end
 
@@ -879,7 +888,7 @@ fun{FPokemoz Msg Init}
    [] get(X) then X=Init Init
    [] getState(State) then State=Init Init
    [] attack(Y Succeed) then Succeed={Attack Y Init} Init
-   [] attackBy(Y) then {AttackBy Y Init}
+   [] attackedBy(Y) then {AttackBy Y Init}
    [] stillAlife(B) then B=(Init.hp>0) Init
    [] gagneContre(Y) then {GagneContre Y Init}
    end
@@ -919,9 +928,9 @@ proc{CombatWild X Y}
       case S of nil then skip
       [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
 	 {Send X attack(Y Succeed1)}
-	 if (Succeed1==true) then {Send Y attackedBy(X StillAlife1)} else StillAlife1=true end
-	 if (StillAlife1==true) then {Send Y attack( X Succeed2)}
-	    if (Succeed2 == true) then {Send X attackedBy( Y StillAlife2)}
+	 if (Succeed1==true) then {Send Y attackedBy(X)} {Send Y stillAlife(StillAlife1)} else StillAlife1=true end
+	 if (StillAlife1==true) then {Send Y attack(X Succeed2)}
+	    if (Succeed2 == true) then {Send X attackedBy(Y)} {Send X stillAlife(StillAlife2)}
 	       if(StillAlife2 == false) then {Send Y gagneContre(X)} end
 	    else StillAlife2=true end
 	 else
@@ -936,15 +945,15 @@ proc{CombatWild X Y}
 	 end
       end
    end
-   P S StateX StateY Combat StateCombat
+   P S StateX StateY Combat StatePokemozX StateCombat
 in
    P={NewPort S}
    {Send X getState(StateX)} 
    {Send Y getState(StateY)}
-   if ({And StateCombat.hp>0 StateY.hp>0}) then
-      Combat = {StartCombat StateX StateY P }
-      {Send StateX.p getState(StateCombat)}
-      {SetCombatState Combat StateCombat StateY}
+   {Send StateX.p getState(StatePokemozX)}
+   if ({And StatePokemozX.hp>0 StateY.hp>0}) then
+      Combat = {StartCombat X Y P }
+      {SetCombatState Combat StatePokemozX StateY}
       thread {CombatRec StateX.p Y S Combat} end
    end
 end
@@ -974,6 +983,8 @@ proc{CombatPerso X Y}
 	 {SetCombatState Combat P1 P2}
 	 if ({And StillAlife1 StillAlife2}) then
 	    {CombatRec X Y Sr Combat}
+	 else
+	    {Browse combatFini}
 	 end
       end
    end
@@ -1003,8 +1014,8 @@ end
 declare
 PortPersoPrincipal
 CanvasMap
-Name
 XMap
+Wild
 %Création de la map
 
 {Send Map get(XMap)}
@@ -1012,8 +1023,12 @@ XMap
 
 CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
 
-Name = {Choose}
-{Browse XMap}
-PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" p(name:Name) 7 7 2 persoPrincipal CanvasMap} } % ATTENTION IL FAUT CREER LE POKEMON AVEC LES FONCTIONS
+%Créer le pokémon du perso principal
+PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} } 
 
-{CreateTrainer Name Pokemoz X Y Speed Type Canvas}
+%Créer un wild pokemoz
+
+Wild = {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}}
+
+{CombatWild PortPersoPrincipal Wild}
+
