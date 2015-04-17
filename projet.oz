@@ -30,22 +30,39 @@ declare
 %Declaration QTk
 [QTk] = {Module.link ['x-oz://system/wp/QTk.ozf']}
 
+% % Création des images pour l'herbe et la route avec leur Tag (je ne sais pas si ça va être utile par la suite :) )
+% GrassImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/herbe.gif')}
+% RoadImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/chemin.gif')}
+
+% % Création des images des pokémons
+% Bulbasoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Bulbasoz.gif')}
+% Oztirtle = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Oztirtle.gif')}
+% Charmandoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Charmandoz.gif')}
+
+
+% % Création des images des Dresseurs
+% PersoPrincipalImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipal.gif')}
+% PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipalGrand.gif')}
+% PersoSauvageImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvage.gif')}
+% PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvageGrand.gif')}
+
+
+
 % Création des images pour l'herbe et la route avec leur Tag (je ne sais pas si ça va être utile par la suite :) )
-GrassImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/herbe.gif')}
-RoadImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/chemin.gif')}
+GrassImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/herbe.gif')}
+RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
 
 % Création des images des pokémons
-Bulbasoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Bulbasoz.gif')}
-Oztirtle = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Oztirtle.gif')}
-Charmandoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Charmandoz.gif')}
+Bulbasoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Bulbasoz.gif')}
+Oztirtle = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Oztirtle.gif')}
+Charmandoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Charmandoz.gif')}
 
 
 % Création des images des Dresseurs
-PersoPrincipalImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipal.gif')}
-PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipalGrand.gif')}
-PersoSauvageImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvage.gif')}
-PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvageGrand.gif')}
-
+PersoPrincipalImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
+PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipalGrand.gif')}
+PersoSauvageImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvage.gif')}
+PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvageGrand.gif')}
 
 % Création des variables utililes pour la gestion de la fenêtre
 HeightWidth=60
@@ -243,7 +260,8 @@ in
    {ImageCanvasPersoSauvage delete}
 end
 
-fun {StartCombat Attaque Attaquant}
+%P est un port qui permet de savoir que le bouton attack à été appuyé
+fun {StartCombat Attaque Attaquant P}
    WindowCombat
    CanvasAttaquant
    CanvasPersoPrincipal
@@ -266,7 +284,7 @@ in
    thread
       {Delay 1000}
          %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
-      {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Browse "Gérer le bouton attaquer"} end width:10)))}
+      {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send P attack} end width:10)))}
    end
    combat(canvasAttaquant:CanvasAttaquant canvasPersoPrincipal:CanvasPersoPrincipal)
 end
@@ -439,7 +457,7 @@ end
 % Verifie si la case de coordonnee (X,Y) appartient à la map
 declare
 fun {Checkin X Y Init}
-    if {And (Y>=0) (Y=<{Width Init})} then {And (X>=0) (X=<{Width Init.Y})}
+    if {And (Y>=0) (Y=<{Width Init})} then {And (X>=0) (X=<{Width Init})}
     else false
     end
 end
@@ -582,7 +600,7 @@ end
 
 declare
 fun {MoveLeft Init}
-   B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse Init.x}
+   B in {Send MapTrainers check((Init.x)-1 Init.y B)}
    if B then  {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x)-1 Init.y)}
       {Move Init moveLeft}
@@ -592,7 +610,7 @@ fun {MoveLeft Init}
 end
 declare
 fun {MoveRight Init}
-   B in {Send MapTrainers check((Init.x)+1 Init.y B)} {Browse Init.x}
+   B in {Send MapTrainers check((Init.x)+1 Init.y B)} 
    if B then {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x)+1 Init.y)}
       {Move Init moveRight}
@@ -805,7 +823,45 @@ end
 % end
 
 
-
+%%%%%%%%%%%%%%%%%%%%%% Gestion de combat %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% X doit être le portObject perso principal
+% Y doit être le portObject pokémoz sauvage
+%
+declare
+proc{CombatWild X Y}
+   % La les variable doivent être 2 pokemoz
+   fun{CombatRec X Y S}
+      case S of nil then skip
+      [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
+	 {Send X attack(Y Succeed1)}
+	 if (Succeed1==true) then {Send Y attackedBy(X StillAlife1)} else StillAlife1=true end
+	 if (StillAlife1==true) then {Send Y attack( X Succeed2)}
+	    if (Succeed2 == true) then {Send X attackedBy( Y StillAlife2)}
+	       if(StillAlife2 == false) then {Send Y gagneContre(X)} end
+	    else StillAlife2=true end
+	 else
+	    {Send X gagneContre(Y)}
+	 end
+	 
+	 if ({And StillAlife1 StillAlife2})
+	    {CombatRec X Y Sr}
+	 end
+      end
+   end
+   P S
+in
+   P={NewPort S}
+   %TODO lancer  uniquement si ils ont tous les deux de la vie
+   %lancer le combat
+   {StartCombat {X.getState($)} {Y.getState($)} P }
+   thread {CombatRec {X.getPokemoz $} Y} end
+end
+%
+% X doit être le perso principal
+% Y doit être le perso adverse
+%
+proc{CombatPerso X Y}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

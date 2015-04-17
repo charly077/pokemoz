@@ -245,7 +245,7 @@ in
    end
 end
 
-Coucou = {Choose}
+
 
 
 % LET THE GAME START des variables des personnages
@@ -290,7 +290,6 @@ in
    %exemple de combat contre un personnage
    Combat2 = {StartCombat t(p:p(name:"Bulbasoz")) t(p:p(name:"Charmandoz"))}
 end
-
 
 
 
