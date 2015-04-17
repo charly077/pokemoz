@@ -31,20 +31,20 @@ declare
 [QTk] = {Module.link ['x-oz://system/wp/QTk.ozf']}
 
 % Création des images pour l'herbe et la route avec leur Tag (je ne sais pas si ça va être utile par la suite :) )
-GrassImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/herbe.gif')}
-RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
+GrassImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/herbe.gif')}
+RoadImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/chemin.gif')}
 
 % Création des images des pokémons
-Bulbasoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Bulbasoz.gif')}
-Oztirtle = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Oztirtle.gif')}
-Charmandoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Charmandoz.gif')}
+Bulbasoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Bulbasoz.gif')}
+Oztirtle = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Oztirtle.gif')}
+Charmandoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Charmandoz.gif')}
 
 
 % Création des images des Dresseurs
-PersoPrincipalImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
-PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipalGrand.gif')}
-PersoSauvageImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvage.gif')}
-PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvageGrand.gif')}
+PersoPrincipalImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipal.gif')}
+PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipalGrand.gif')}
+PersoSauvageImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvage.gif')}
+PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvageGrand.gif')}
 
 
 % Création des variables utililes pour la gestion de la fenêtre
@@ -436,12 +436,6 @@ fun{CreateMap}
        r(0 0 0 0 0 0 0))
 end
 
-% Verifie si la case de coordonnee (X,Y) est vide
-declare
-fun {Check X Y Init}
-   Init.Y.X==0  
-end
-
 % Verifie si la case de coordonnee (X,Y) appartient à la map
 declare
 fun {Checkin X Y Init}
@@ -449,6 +443,16 @@ fun {Checkin X Y Init}
     else false
     end
 end
+
+% Verifie si la case de coordonnee (X,Y) appartien à la map et est vide
+declare
+fun {Check X Y Init}
+   if {Checkin X Y Init} then Init.Y.X==0
+   else false
+   end
+end
+
+
 
 % Fonction qui modifie les coordonnee (X,Y) de la Map Init
 declare
@@ -466,7 +470,7 @@ fun {FMap Msg Init}
    case Msg
    of  setMap(X Y) then {SetMap X Y Init}
    [] check(X Y B) then B={Check X Y Init} Init
-   [] checkin(X Y B) then B={Check X Y Init} Init
+   [] checkin(X Y B) then B={Checkin X Y Init} Init
    [] get(X) then X=Init Init 
    end
 end
@@ -483,7 +487,7 @@ Map={NewPortObject FMap {CreateMap}}
 % {Send Map setMap(5 6)} 
 % {Send MapTrainers setMap(2 2)}
 
- local B in {Send MapTrainers checkin(5 10 B)} {Browse B} end
+% local B in {Send MapTrainers checkin(5 10 B)} {Browse B} end
 % local B in {Send MapTrainers check(6 6 B)} {Browse B} end
 % local X in {Send Map get(X)} {Browse X} end
 %local X in {Send MapTrainers get(X)} {Browse X} end
@@ -578,36 +582,44 @@ end
 
 declare
 fun {MoveLeft Init}
-   local B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse Init.x}
-      if {And Init.x>0 B} then  {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)-1 Init.y)} {Move Init moveLeft} {AdjoinAt Init x (Init.x)-1}
+   B in {Send MapTrainers check((Init.x)-1 Init.y B)} {Browse Init.x}
+   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x)-1 Init.y)}
+      {Move Init moveLeft}
+      {AdjoinAt Init x (Init.x)-1}
       else Init
       end
-   end
 end
 declare
 fun {MoveRight Init}
-   local B in {Send MapTrainers check((Init.x)+1 Init.y B)} {Browse Init.x}
-      if {And (Init.x<7) B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x)+1 Init.y)} {Move Init moveRight} {AdjoinAt Init x (Init.x)+1}
+   B in {Send MapTrainers check((Init.x)+1 Init.y B)} {Browse Init.x}
+   if B then {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x)+1 Init.y)}
+      {Move Init moveRight}
+      {AdjoinAt Init x (Init.x)+1}
       else Init
-      end
    end
 end
 
 declare
 fun {MoveUp Init}
-   local B in {Send MapTrainers check((Init.x) (Init.y)-1 B)}
-      if {And Init.y>0 B} then  {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)-1)} {Move Init moveUp} {AdjoinAt Init y (Init.y)-1}
+   B in {Send MapTrainers check((Init.x) (Init.y)-1 B)}
+   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x) (Init.y)-1)}
+      {Move Init moveUp}
+      {AdjoinAt Init y (Init.y)-1}
       else Init
-   end %% truc chelou il n'accepte pas {Width Map} surement car record de record
    end
 end
 
 declare
 fun {MoveDown Init}
-   local B in {Send MapTrainers check((Init.x) (Init.y)+1 B)}
-      if {And Init.y<7 B} then {Send MapTrainers setMap((Init.x) Init.y)} {Send MapTrainers setMap((Init.x) (Init.y)+1)} {Move Init moveDown} {AdjoinAt Init y (Init.y)+1}
+   B in {Send MapTrainers check((Init.x) (Init.y)+1 B)}
+   if B then {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x) (Init.y)+1)}
+      {Move Init moveDown}
+      {AdjoinAt Init y (Init.y)+1}
       else Init
-      end
    end
 end
 
@@ -707,6 +719,7 @@ fun {SetHp Init X}
 end
 
 
+
 declare
 fun {LevelUp Init}
    case Init.lx of 5 then if Init.xp>5 then {AdjoinList Init [xp#(Init.xp mod 5) lx#6 hp#22]}  else Init end
@@ -718,19 +731,29 @@ fun {LevelUp Init}
    
 end
 
+% declare
+% fun{Damage Lx Type Init}
+%    {Send Combat updateaction}
+%    if(((6+Lx-Init.lx)*9)>({OS.rand} mod 100)) then {AdjoinAt Init hp ((Init.hp)-{Degat Type Init})}
+%       else
+
+% end
+
+
 
 
 %%%%%%%%%%%%% Fonction mere Pokemoz %%%%%%%%%%%%%%%%%%
 
 declare FPokemoz in
 fun {FPokemoz Msg Init}
+   P1 P2
    case Msg
    of sethp(X) then {SetHp Init X} 
    [] setlx(X) then {SetLx Init X} 
    [] setxp(X) then {SetXp Init X} 
    [] levelup then {LevelUp Init}
    [] get(X) then X=Init Init
-   [] attack then {Attack 
+   [] damage(Lx Type) then {Damage Lx Type Init} 
       
    end
 end
@@ -748,7 +771,38 @@ end
 % {Send P1 levelup}
 % {Send P2 levelup}
 
+% declare
+% fun{UpDateAction Init}
+%    if Init.action>0 then {AdjoinAt Init action (Init.action)-1}
+%       else {AdjoinAt Init action (Init.action)+1}
+%    end
+% end
+% declare
+% fun{Go}
+%    P1 P2 in
+%    P1={Send PortPersoPrincipal getPokemoz}
+%    P2={CreatePokemoz5 1 "Bulboz"}
+%    combat(1:P1 2:P2 action:1}
+% end
 
+% declare
+% fun{Fight Lx Type Init}
+%    {Send Init.action damage(Lx Type)} %% TODO mise à jour de action par damage
+% end
+
+   
+% declare
+% fun {FCombat Msg Init}
+%    case Msg
+%    of upDateAction then {UpDateAction Init} 
+%    [] go then {Go} 
+%    [] figth(Lx Type) then {Figth Lx Type Init} 
+%    [] levelup then {LevelUp Init}
+%    [] get(X) then X=Init Init
+%    [] domage then {Send P 
+      
+%    end
+% end
 
 
 
