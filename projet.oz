@@ -442,7 +442,13 @@ fun {Check X Y Init}
    Init.Y.X==0  
 end
 
-
+% Verifie si la case de coordonnee (X,Y) appartient à la map
+declare
+fun {Checkin X Y Init}
+    if {And (Y>=0) (Y=<{Width Init})} then {And (X>=0) (X=<{Width Init.Y})}
+    else false
+    end
+end
 
 % Fonction qui modifie les coordonnee (X,Y) de la Map Init
 declare
@@ -460,6 +466,7 @@ fun {FMap Msg Init}
    case Msg
    of  setMap(X Y) then {SetMap X Y Init}
    [] check(X Y B) then B={Check X Y Init} Init
+   [] checkin(X Y B) then B={Check X Y Init} Init
    [] get(X) then X=Init Init 
    end
 end
@@ -476,7 +483,7 @@ Map={NewPortObject FMap {CreateMap}}
 % {Send Map setMap(5 6)} 
 % {Send MapTrainers setMap(2 2)}
 
-% local B in {Send Maptrainers check(5 6 B)} {Browse B} end
+ local B in {Send MapTrainers checkin(5 10 B)} {Browse B} end
 % local B in {Send MapTrainers check(6 6 B)} {Browse B} end
 % local X in {Send Map get(X)} {Browse X} end
 %local X in {Send MapTrainers get(X)} {Browse X} end
