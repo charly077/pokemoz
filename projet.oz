@@ -232,7 +232,7 @@ proc {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaq
    ImageCanvasPersoPrincipal
 in
    case Attaquant of p(name:X) then PokemozAttaquantName = X end
-   case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end 
+   case Attaque of t(p:Z) then X in {Send Z getState(X)} PokemozPersoPrincipalName = X.name end 
    % On peut mettre directement le pokemoz
    {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
    % Mettre l'image du dresseur pendant une seconde
@@ -252,8 +252,8 @@ in
    {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
    {CanvasAttaquant create(image 550 150 image:PersoSauvageImageGrand handle:ImageCanvasPersoSauvage)}
    {Delay 3000} % Permet de laisser les perso 3 secondes
-   case Attaquant of  t(p:p(name:X)) then PokemozAttaquantName = X end
-   case Attaque of t(p:p(name:X)) then PokemozPersoPrincipalName=X end
+   case Attaquant of  t(p:Z) then X in {Send Z getState(X)} PokemozAttaquantName = X.name end
+   case Attaque of t(p:Z) then X in {Send Z getState(X)} PokemozPersoPrincipalName=X.name end
    {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName})}
    {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
    {ImageCanvasPersoPrincipal delete}
@@ -261,20 +261,25 @@ in
 end
 
 %P est un port qui permet de savoir que le bouton attack à été appuyé
-fun {StartCombat Attaque Attaquant P}
+fun {StartCombat AttaquePort AttaquantPort P}
    WindowCombat
    CanvasAttaquant
    CanvasPersoPrincipal
    PlaceHolder
    Combat = td(title:"Pokemoz, the fight can begin !"
+	       label(handle:LabelAttaquant glue:e)
 	       canvas(handle:CanvasAttaquant width:700 height:300 bg:white)
 	       canvas(handle:CanvasPersoPrincipal width:700 height:300 bg:white)
+	       label(handle:LabelPersoPrincipal glue:w)
 	       button(text:"Close" action:toplevel#close width:10 glue:we bg:white)
-	      placeholder(handle:PlaceHolder))
+	       placeholder(handle:PlaceHolder))
+   Attaquant
    Label
 in
    WindowCombat = {QTk.build Combat}
    {WindowCombat show(modal:true)}
+   {Send AttaquantPort getState(Attaquant)}
+   {Send AttaquePort getState(Attaque)}
    {Record.label Attaquant Label}
    case Label of p then {AttackWildPokemoz WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant} 
    [] t then {AttackTrainer WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
@@ -286,7 +291,34 @@ in
          %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
       {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send P attack} end width:10)))}
    end
-   combat(canvasAttaquant:CanvasAttaquant canvasPersoPrincipal:CanvasPersoPrincipal)
+   combat(canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal)
+end
+
+fun {SetCombatState Combat StateAttaque StateAttaquant}
+   fun{CreateString List}
+      case List of nil then nil
+      [] X|L then
+	 case X of nil then {CreateString L}
+	 [] T|H then T|{CreateString H|L}
+	 end
+      end
+   end
+   % Création du message de l'attaqué
+   Xp1 MsgAttaquant Hp1
+   Xp2 MsgAttaque Hp2
+in
+   {Int.toString StateAttaquant.xp  Xp1}
+   {Int.toString StateAttaquant.hp  Hp1}
+   
+   MsgAttaquant = {CreateString [ "Name : " StateAttaquant.name " xp : " Xp1 " HP : " Hp1]}
+   %Création du Message de l'attaquant
+   {Int.toString StateAttaque.xp  Xp2}
+   {Int.toString StateAttaque.hp  Hp2}
+   
+   MsgAttaque = {CreateString [ "Name : " StateAttaque.name " xp : " Xp2 " HP : " Hp1]}
+   
+   {Combat.LabelAttaquant SetText(MsgAttaquant)}
+   {Combat.LabetAttaque SetText(MsgAttaque)}
 end
 
 
@@ -365,6 +397,7 @@ in
    PersoPrincipal={CreatePerso CanvasMap t(name:"I m the best :p" type:persoPrincipal x:7 y:7)} %Perso principal doit commencer en 7 7
    PersoSecondaire={CreatePerso CanvasMap t(name:"I m the second but as wild as the worst:p" type:wild x:2 y:6)}
 
+   %TODO Changer les deux exemple suivant car ça doit être des PokemozPort
    %exemple de début de combat contre un pokémon sauvage
    Combat1 = {StartCombat t(p:(p(name:"Bulbasoz"))) p(name:"Oztirtle")}
 
@@ -832,7 +865,49 @@ end
 % Y doit être le portObject pokémoz sauvage
 %
 declare
+%TODO TEST DES DEUX FONCTIONS
 proc{CombatWild X Y}
+   % La les variable doivent être 2 pokemoz
+   fun{CombatRec X Y S Combat}
+      P1 P2 in
+      case S of nil then skip
+      [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
+	 {Send X attack(Y Succeed1)}
+	 if (Succeed1==true) then {Send Y attackedBy(X StillAlife1)} else StillAlife1=true end
+	 if (StillAlife1==true) then {Send Y attack( X Succeed2)}
+	    if (Succeed2 == true) then {Send X attackedBy( Y StillAlife2)}
+	       if(StillAlife2 == false) then {Send Y gagneContre(X)} end
+	    else StillAlife2=true end
+	 else
+	    {Send X gagneContre(Y)}
+	 end
+	 % Remise à jour des valeurs
+	 {Send X getState(P1)}
+	 {Send Y getState(P2)}
+	 {SetCombatState Combat P1 P2}
+	 if ({And StillAlife1 StillAlife2})
+	    {CombatRec X Y Sr}
+	 end
+      end
+   end
+   P S StateX StateY Combat StateCombat
+in
+   P={NewPort S}
+   {Send X getState(StateX)} 
+   {Send Y getState(StateY)}
+   if ({And StateX.p.HP>0 StateY.HP>0})
+      Combat = {StartCombat StateX StateY P }
+      {Send StateX.p getState(StateCombat)}
+      {SetCombatState Combat StateCombat StateY}
+      thread {CombatRec StateX.p Y Combat} end
+   end
+end
+
+%
+% X doit être le perso principal
+% Y doit être le perso adverse
+%
+proc{CombatPerso X Y}
    % La les variable doivent être 2 pokemoz
    fun{CombatRec X Y S}
       case S of nil then skip
@@ -852,19 +927,18 @@ proc{CombatWild X Y}
 	 end
       end
    end
-   P S
+   P S StateX StateY
 in
    P={NewPort S}
-   %TODO lancer  uniquement si ils ont tous les deux de la vie
-   %lancer le combat
-   {StartCombat {X.getState($)} {Y.getState($)} P }
-   thread {CombatRec {X.getPokemoz $} Y} end
+   {Send X getState(StateX)}
+   {Send Y getState(StateY)}
+   if ({And StateX.p.HP>0 StateY.HP>0})
+      {StartCombat StateX StateY P}
+      thread {CombatRec StateX.p StateY.p} end
+   end
 end
-%
-% X doit être le perso principal
-% Y doit être le perso adverse
-%
-proc{CombatPerso X Y}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
