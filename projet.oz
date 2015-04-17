@@ -693,7 +693,8 @@ fun {FTrainer Msg Init}
    [] moveDown then {MoveDown Init} 
    [] moveUp then {MoveUp Init}
    [] setauto then {SetAuto Init}
-   [] get(X) then X=Init Init 
+   [] get(X) then X=Init Init
+   [] getState(State) then State=Init Init 
    end
 end
 
@@ -740,6 +741,10 @@ end
 % Pokemoz = p(type:_ name:_ hp:_ lx:_ xp:_)
 
 %%%%%%%%%%%%% Gestion création Pokemoz %%%%%%%%%%%%%%%
+declare
+Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
+Types = types(fire water grass)
+
 
 declare
 fun{CreatePokemoz Type Name Hp Lx}
@@ -750,6 +755,42 @@ declare
 fun{CreatePokemoz5 Type Name}
    p(type:Type name:Name hp:20 lx:5 xp:0)
 end
+
+declare
+fun{CreateRandPokemoz}
+   Type Name Hp Lx in
+   Type=Types.(({OS.rand} mod {Width Types})+1)
+   Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
+   Lx=5+ {OS.rand} mod 5
+   Hp=20 +2*(Lx-5)
+   p(type:Type name:Name hp:Hp lx:Lx xp:0)
+end
+
+declare
+fun{LevelRand Lx}
+   case Lx of 5 then 5+({OS.rand} mod 2)
+   [] 6 then 5+({OS.rand} mod 3)
+   [] 7 then 5+({OS.rand} mod 5)
+   else 5+({OS.rand} mod 6)
+   end
+end      
+
+declare
+fun{CreatePokemozTrainer T}
+   Type Name Hp Lx Trainer Pokemoz in
+   {Send T get(Trainer)}
+   {Send Trainer.p get(Pokemoz)}
+   Type=Types.(({OS.rand} mod {Width Types})+1)
+   Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
+   Lx={LevelRand Pokemoz.lx}
+   Hp=20 +2*(Lx-5)
+   p(type:Type name:Name hp:Hp lx:Lx xp:0)
+end
+
+
+
+   
+	       
 
 
 %%%%%%%%%%%%%%%% Gestion Xp et Level %%%%%%%%%%%%%%%%%
@@ -782,81 +823,82 @@ fun {LevelUp Init}
 end
 
 declare
-fun{Damage Lx Type Init}
-   if(((6+Lx-Init.lx)*9)>({OS.rand} mod 100)) then {AdjoinAt Init hp ((Init.hp)-{Degat Type Init})}
-   else Init
+fun{AttackBy Y Init} Attaquant in {Send Y get(Attaquant)}
+   case Init.type
+   of fire then case Attaquant.type
+		of fire then {AdjoinAt Init hp ((Init.hp)-2)}
+		[] water then {AdjoinAt Init hp ((Init.hp)-3)}
+		[] grass then {AdjoinAt Init hp ((Init.hp)-1)}
+		end
+   [] grass then  case Attaquant.type
+		  of fire then {AdjoinAt Init hp ((Init.hp)-3)}
+		  [] water then {AdjoinAt Init hp ((Init.hp)-1)}
+		  [] grass then {AdjoinAt Init hp ((Init.hp)-2)}
+		  end
+   [] water then  case Attaquant.type
+		  of fire then {AdjoinAt Init hp ((Init.hp)-1)}
+		  [] water then {AdjoinAt Init hp ((Init.hp)-2)}
+		  [] grass then {AdjoinAt Init hp ((Init.hp)-3)}
+		  end	  
    end
 end
 
 declare
-fun{Gain Lx Init}
-   
-   
+fun{Attack Y Init}
+   X in {Send Y get(X)}
+   ((((6+X.lx-Init.lx)*9))>({OS.rand} mod 100))
+end
+
+declare
+fun{UpdateXp Perdant Status}
+   {AdjoinAt Status xp ((Status.xp)+(Perdant.lx))}
+end
 
 
+declare
+fun{GagneContre Y Status}
+   Perdant in {Send Y get(Perdant)}
+   {LevelUp {UpdateXp Perdant Status}}
+end
+
+   
 
 
 %%%%%%%%%%%%% Fonction mere Pokemoz %%%%%%%%%%%%%%%%%%
 
-declare FPokemoz in
-fun {FPokemoz Msg Init}
-   P1 P2
+declare
+fun{FPokemoz Msg Init}
    case Msg
    of sethp(X) then {SetHp Init X} 
    [] setlx(X) then {SetLx Init X} 
    [] setxp(X) then {SetXp Init X} 
    [] levelup then {LevelUp Init}
    [] get(X) then X=Init Init
-   [] damage(Lx Type) then {Damage Lx Type Init} 
-      
+   [] attack(Y Succeed) then Succeed={Attack Y Init} Init
+   [] attackBy(Y) then {AttackBy Y Init}
+   [] stillAlife(B) then B=(Init.hp>0) Init
+   [] gagneContre(Y) then {GagneContre Y Init}
    end
 end
 
 
-% declare P1 P2 P3
-% P1={NewPortObject FPokemoz {CreatePokemoz "fire" "Buloz"}}
-% P2={NewPortObject FTrainer {CreateRandTrainer 1 4}}
-% P3={NewPortObject FTrainer {CreateRandTrainer 1 4}}
+% declare P1 P2 P3 T1
+%  T1={NewPortObject FTrainer t(p:{CreateRandPokemoz} speed:4 auto:1 x:9 y:1 handle:1 type:persoPrincipal name:"Sacha")}
+%  P1={NewPortObject FPokemoz {CreateRandPokemoz}}
+%  P2={NewPortObject FPokemoz {CreateRandPokemoz}}
+%  P3={NewPortObject FPokemoz {CreateRandPokemoz}}
 
 
 
-% local X in {Send P1 get(X)} {Browse X} end
-% local X in {Send P2 get(X)} {Browse X} end
-% {Send P1 levelup}
-% {Send P2 levelup}
+%  local X in {Send P1 get(X)} {Browse X} end
+%  local X in {Send P2 get(X)} {Browse X} end
+%  local X in {Send P3 get(X)} {Browse X} end
 
-% declare
-% fun{UpDateAction Init}
-%    if Init.action>0 then {AdjoinAt Init action (Init.action)-1}
-%       else {AdjoinAt Init action (Init.action)+1}
-%    end
-% end
-% declare
-% fun{Go}
-%    P1 P2 in
-%    P1={Send PortPersoPrincipal getPokemoz}
-%    P2={CreatePokemoz5 1 "Bulboz"}
-%    combat(1:P1 2:P2 action:1}
-% end
+%  local X in {Send P1 attack(P2 X)} {Browse X} end
+%  {Send P2 attackBy(P1)}
+%  {Send P1 gagneContre(P2)}
+% local X in {Send P1 stillAlife(X)} {Browse X} end
 
-% declare
-% fun{Fight Lx Type Init}
-%    {Send Init.action damage(Lx Type)} %% TODO mise à jour de action par damage
-% end
-
-   
-% declare
-% fun {FCombat Msg Init}
-%    case Msg
-%    of upDateAction then {UpDateAction Init} 
-%    [] go then {Go} 
-%    [] figth(Lx Type) then {Figth Lx Type Init} 
-%    [] levelup then {LevelUp Init}
-%    [] get(X) then X=Init Init
-%    [] domage then {Send P 
-      
-%    end
-% end
 
 
 %%%%%%%%%%%%%%%%%%%%%% Gestion de combat %%%%%%%%%%%%%%%%%%%%%%%%%%%%
