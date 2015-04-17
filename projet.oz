@@ -877,6 +877,7 @@ fun{FPokemoz Msg Init}
    [] setxp(X) then {SetXp Init X} 
    [] levelup then {LevelUp Init}
    [] get(X) then X=Init Init
+   [] getState(State) then State=Init Init
    [] attack(Y Succeed) then Succeed={Attack Y Init} Init
    [] attackBy(Y) then {AttackBy Y Init}
    [] stillAlife(B) then B=(Init.hp>0) Init
