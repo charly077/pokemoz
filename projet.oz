@@ -30,7 +30,6 @@ declare
 %Declaration QTk
 [QTk] = {Module.link ['x-oz://system/wp/QTk.ozf']}
 
-% % Création des images pour l'herbe et la route avec leur Tag (je ne sais pas si ça va être utile par la suite :) )
 % GrassImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/herbe.gif')}
 % RoadImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/chemin.gif')}
 
@@ -48,7 +47,7 @@ declare
 
 
 
-% Création des images pour l'herbe et la route avec leur Tag (je ne sais pas si ça va être utile par la suite :) )
+% Création des images 
 GrassImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/herbe.gif')}
 RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
 
@@ -69,6 +68,8 @@ HeightWidth=60
 AddXY=HeightWidth div 2
 WidthBetween= HeightWidth + HeightWidth div 6
 N=7
+
+Proba = 10
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% Création graphique de la map %%%%%%%%%%%%%%%%%%%%%%
@@ -232,8 +233,6 @@ proc {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaq
    ImageCanvasPersoPrincipal
    X
 in
-   {Browse Attaquant}
-   {Browse Attaque}
    PokemozAttaquantName = Attaquant.name
    {Send Attaque.p getState(X)}
    PokemozPersoPrincipalName = X.name 
@@ -484,7 +483,7 @@ end
 
 % Fonction de creation d'un record map
 declare
-fun{CreateMap}
+fun{CreateEmptyMap}
    map(r(0 0 0 0 0 0 0)
        r(0 0 0 0 0 0 0)
        r(0 0 0 0 0 0 0)
@@ -493,19 +492,28 @@ fun{CreateMap}
        r(0 0 0 0 0 0 0)
        r(0 0 0 0 0 0 0))
 end
+fun{CreateMap}
+   map(r(1 1 1 0 0 0 0)
+       r(1 1 1 0 0 1 1)
+       r(1 1 1 0 0 1 1)
+       r(0 0 0 0 0 1 1)
+       r(0 0 0 1 1 1 1)
+       r(0 0 0 1 1 0 0)
+       r(0 0 0 0 0 0 0))
+end
 
 % Verifie si la case de coordonnee (X,Y) appartient à la map
 declare
-fun {Checkin X Y Init}
-    if {And (Y>=0) (Y=<{Width Init})} then {And (X>=0) (X=<{Width Init})}
+fun {Checkin X Y MapState}
+    if {And (Y>0) (Y=<{Width MapState})} then {And (X>0) (X=<{Width MapState})}
     else false
     end
 end
 
 % Verifie si la case de coordonnee (X,Y) appartien à la map et est vide
 declare
-fun {Check X Y Init}
-   if {Checkin X Y Init} then Init.Y.X==0
+fun {Check X Y MapState}
+   if {Checkin X Y MapState} then MapState.Y.X==0
    else false
    end
 end
@@ -524,18 +532,18 @@ end
 
 %%%%%%%%%%%%% fonction mere Map %%%%%%%%%%%%%%%%%%
 declare FMap in
-fun {FMap Msg Init}
+fun {FMap Msg MapState}
    case Msg
-   of  setMap(X Y) then {SetMap X Y Init}
-   [] check(X Y B) then B={Check X Y Init} Init
-   [] checkin(X Y B) then B={Checkin X Y Init} Init
-   [] get(X) then X=Init Init 
+   of  setMap(X Y) then {SetMap X Y MapState}
+   [] check(X Y B) then B={Check X Y MapState} MapState
+   [] checkin(X Y B) then B={Checkin X Y MapState} MapState
+   [] get(X) then X=MapState MapState 
    end
 end
 
 
 declare MapTrainers Map
-MapTrainers={NewPortObject FMap {CreateMap}}
+MapTrainers={NewPortObject FMap {CreateEmptyMap}}
 Map={NewPortObject FMap {CreateMap}}
 
 %test
@@ -640,20 +648,24 @@ end
 
 declare
 fun {MoveLeft Init}
-   B in {Send MapTrainers check((Init.x)-1 Init.y B)}
+   B Grass in {Send MapTrainers check((Init.x)-1 Init.y B)} {Send Map check((Init.x)-1 Init.y Grass)}
    if B then  {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x)-1 Init.y)}
       {Move Init moveLeft}
+      {Browse Grass}
+      if Grass==false then {GrassCombat Init} end
       {AdjoinAt Init x (Init.x)-1}
       else Init
       end
 end
 declare
 fun {MoveRight Init}
-   B in {Send MapTrainers check((Init.x)+1 Init.y B)} 
+   B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
    if B then {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x)+1 Init.y)}
       {Move Init moveRight}
+      {Browse Grass}
+      if Grass==false then {GrassCombat Init} end
       {AdjoinAt Init x (Init.x)+1}
       else Init
    end
@@ -661,10 +673,12 @@ end
 
 declare
 fun {MoveUp Init}
-   B in {Send MapTrainers check((Init.x) (Init.y)-1 B)}
+   B Grass in {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)}
    if B then  {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x) (Init.y)-1)}
       {Move Init moveUp}
+      {Browse Grass}
+      if Grass==false then {GrassCombat Init} end
       {AdjoinAt Init y (Init.y)-1}
       else Init
    end
@@ -672,10 +686,12 @@ end
 
 declare
 fun {MoveDown Init}
-   B in {Send MapTrainers check((Init.x) (Init.y)+1 B)}
+   B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
    if B then {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x) (Init.y)+1)}
       {Move Init moveDown}
+      {Browse Grass}
+      if Grass==false then {GrassCombat Init} end
       {AdjoinAt Init y (Init.y)+1}
       else Init
    end
@@ -700,8 +716,10 @@ fun {FTrainer Msg Init}
    [] moveDown then {MoveDown Init} 
    [] moveUp then {MoveUp Init}
    [] setauto then {SetAuto Init}
+   [] setPortObject(X) then {Browse X} {Record.adjoin Init t(portObject:X) $}
+   [] getPortObject(R) then R = Init.portObject Init
    [] get(X) then X=Init Init
-   [] getState(State) then State=Init Init 
+   [] getState(State) then State=Init Init
    end
 end
 
@@ -834,6 +852,16 @@ fun {LevelUp Init}
    
 end
 
+fun {SetHpMax State}
+   case State.lx of 5 then {Record.adjoin State p(hp:20) $}
+   [] 6 then {Record.adjoin State p(hp:22) $}
+   [] 7 then {Record.adjoin State p(hp:24) $}
+   [] 8 then {Record.adjoin State p(hp:26) $}
+   [] 9 then {Record.adjoin State p(hp:28) $}
+   [] 10 then {Record.adjoin State p(hp:30) $}
+   end
+end
+
 declare
 fun{AttackBy Y Init} Attaquant in {Send Y get(Attaquant)}
    case Init.type
@@ -879,18 +907,20 @@ end
 %%%%%%%%%%%%% Fonction mere Pokemoz %%%%%%%%%%%%%%%%%%
 
 declare
-fun{FPokemoz Msg Init}
+fun{FPokemoz Msg State}
    case Msg
-   of sethp(X) then {SetHp Init X} 
-   [] setlx(X) then {SetLx Init X} 
-   [] setxp(X) then {SetXp Init X} 
-   [] levelup then {LevelUp Init}
-   [] get(X) then X=Init Init
-   [] getState(State) then State=Init Init
-   [] attack(Y Succeed) then Succeed={Attack Y Init} Init
-   [] attackedBy(Y) then {AttackBy Y Init}
-   [] stillAlife(B) then B=(Init.hp>0) Init
-   [] gagneContre(Y) then {GagneContre Y Init}
+   of sethp(X) then {SetHp State X} 
+   [] setlx(X) then {SetLx State X} 
+   [] setxp(X) then {SetXp State X}
+   [] setHpMax() then {SetHpMax State}
+   [] levelup then {LevelUp State}
+   [] get(X) then X=State State
+   [] getState(StateR) then StateR=State State
+   [] getHp(Hp) then Hp=State.hp State
+   [] attack(Y Succeed) then Succeed={Attack Y State} State
+   [] attackedBy(Y) then {AttackBy Y State}
+   [] stillAlife(B) then B=(State.hp>0) State
+   [] gagneContre(Y) then {GagneContre Y State}
    end
 end
 
@@ -972,10 +1002,14 @@ proc{CombatPerso X Y}
 	 if (Succeed1==true) then {Send Y attackedBy(X StillAlife1)} else StillAlife1=true end
 	 if (StillAlife1==true) then {Send Y attack( X Succeed2)}
 	    if (Succeed2 == true) then {Send X attackedBy( Y StillAlife2)}
-	       if(StillAlife2 == false) then {Send Y gagneContre(X)} end
+	       if(StillAlife2 == false) then
+		  {Send Y gagneContre(X)} % Augmentation de niveau
+		  {Combat.attaqueImage delete}%suppression de l'image du perdant
+	       end
 	    else StillAlife2=true end
 	 else
-	    {Send X gagneContre(Y)}
+	    {Send X gagneContre(Y)} % Augmentation du niveau
+	    {Combat.attaquantImage delete}
 	 end
 	 % Remise à jour des valeurs
 	 {Send X getState(P1)}
@@ -1001,7 +1035,24 @@ in
       thread {CombatRec StateX.p StateY.p S Combat} end
    end
 end
-
+declare
+Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
+proc {GrassCombat PersoState}
+   %Création d'un nombre aléatoire pour respecter la proba : génération d'un nombre entre 0 et 100 et regarder si le nombre est inférieur à la Proba definie tout en haut :)
+   Rand
+   RandomPokemoz
+   Combat
+in
+   {Browse grassCombat}
+   Rand = {OS.rand $} mod 100
+   if (Rand =< Proba-1) then
+      % Choix d'un pokémoz Aléatoire
+      RandomPokemoz = ({OS.rand $} mod ({Record.width Wilds}))+1
+      {Browse Wilds.RandomPokemoz}
+      {Browse PersoState.portObject}
+      {CombatWild (PersoState.portObject) (Wilds.RandomPokemoz)}
+   end
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1015,20 +1066,16 @@ declare
 PortPersoPrincipal
 CanvasMap
 XMap
-Wild
 %Création de la map
-
 {Send Map get(XMap)}
 
-
+%Démarrage du jeux
 CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
 
 %Créer le pokémon du perso principal
 PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} } 
+% Essai d'envoyer le portObject au Perso Principal !!!!
+{Send PortPersoPrincipal setPortObject(PortPersoPrincipal)}
+%Créer 3 wild pokemoz .. ils évoluent au court du temps car ils peuvent évoluer de la même façon que notre pokémon
 
-%Créer un wild pokemoz
-
-Wild = {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}}
-
-{CombatWild PortPersoPrincipal Wild}
 
