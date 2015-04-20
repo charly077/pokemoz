@@ -273,14 +273,14 @@ in
 end
 
 %P est un port qui permet de savoir que le bouton attack à été appuyé
-fun {StartCombat AttaquePort AttaquantPort P}
+fun {StartCombat Attaque AttaquantPort P}
    WindowCombat
    CanvasAttaquant
    CanvasPersoPrincipal
    PlaceHolder
    LabelAttaquant
    LabelPersoPrincipal
-   Attaque
+   %Attaque
    Attaquant
    Combat = td(title:"Pokemoz, the fight can begin !"
 	       label(handle:LabelAttaquant glue:e)
@@ -294,7 +294,7 @@ in
    WindowCombat = {QTk.build Combat}
    {WindowCombat show(modal:true)}
    {Send AttaquantPort getState(Attaquant)}
-   {Send AttaquePort getState(Attaque)}
+   %{Send AttaquePort getState(Attaque)}
    {Record.label Attaquant Label}
    case Label of p then {AttackWildPokemoz WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant} 
    [] t then {AttackTrainer WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
@@ -671,7 +671,7 @@ fun {MoveUp Init}
    if B then  {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x) (Init.y)-1)}
       {Move Init moveUp}
-      if Grass==false then {Browse grass} {Browse Init} {GrassCombat Init} end
+      if Grass==false then {GrassCombat Init} end
       {AdjoinAt Init y (Init.y)-1}
       else Init
    end
@@ -683,7 +683,7 @@ fun {MoveDown Init}
    if B then {Send MapTrainers setMap((Init.x) Init.y)}
       {Send MapTrainers setMap((Init.x) (Init.y)+1)}
       {Move Init moveDown}
-      if Grass==false then {Browse grass}{Browse Init} {GrassCombat Init} end
+      if Grass==false then  {GrassCombat Init} end
       {AdjoinAt Init y (Init.y)+1}
       else Init
    end
@@ -899,6 +899,7 @@ fun{FPokemoz Msg State}
    of sethp(X) then {SetHp State X} 
    [] setlx(X) then {SetLx State X} 
    [] setxp(X) then {SetXp State X}
+   [] addXp(X) then {SetXp State (State.xp + X)}
    [] setHpMax() then {SetHpMax State}
    [] levelup then {LevelUp State}
    [] get(X) then X=State State
@@ -938,7 +939,7 @@ end
 %
 
 %TODO TEST DES DEUX FONCTIONS
-proc{CombatWild X Y}
+proc{CombatWild StateX Y}
    % La les variable doivent être 2 pokemoz
    proc{CombatRec X Y S Combat}
       P1 P2 in
@@ -962,20 +963,20 @@ proc{CombatWild X Y}
 	 end
       end
    end
-   P S StateX StateY Combat StatePokemozX StateCombat
+   P S StateY Combat StatePokemozX StateCombat
 in
    %{Browse combatWild}
    P={NewPort S}
    {Browse newPort}
    %{Browse X}
-   {Send X getState(StateX)}
+   %{Send X getState(StateX)}
   % {Browse StateX}
    {Send Y getState(StateY)}
   % {Browse StateY}
    {Send StateX.p getState(StatePokemozX)}
   % {Browse StatePokemozX}
    if ({And StatePokemozX.hp>0 StateY.hp>0}) then
-      Combat = {StartCombat X Y P }
+      Combat = {StartCombat StateX Y P }
       {SetCombatState Combat StatePokemozX StateY}
       thread {CombatRec StateX.p Y S Combat} end
    end
@@ -1042,10 +1043,9 @@ in
    if (Rand =< Proba-1) then
       % Choix d'un pokémoz Aléatoire
       RandomPokemoz = ({OS.rand $} mod ({Record.width Wilds}))+1
-      X = PersoState.portObject
-      {Browse X}
-      {Browse {Send X getState($)}}
-      {CombatWild X (Wilds.RandomPokemoz)}
+      {Browse grassCombat}
+      {Browse PersoState}
+      {CombatWild PersoState (Wilds.RandomPokemoz)}
    end
 end
 
@@ -1069,15 +1069,28 @@ CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc
 
 %Créer le pokémon du perso principal
 PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} }
-% Essai d'envoyer le portObject au Perso Principal !!!!
-{Browse PortPersoPrincipal}
-{Send PortPersoPrincipal setPortObject(PortPersoPrincipal)}
-%Créer 3 wild pokemoz .. ils évoluent au court du temps car ils peuvent évoluer de la même façon que notre pokémon
-{Browse {Send PortPersoPrincipal getState($)}}
-declare X
-{Send PortPersoPrincipal getPortObject(X)}
-{Browse X}
-declare Y
-{Send PortPersoPrincipal getState(Y)}
-{Browse Y}
-{Browse coucou}
+
+
+proc {WildsHealthXP Wilds DelayToApply}
+   Width = {Record.width Wilds}
+   proc {Recursion Wilds Width}
+      {Delay DelayToApply}
+      {Recurs Wilds Width}
+   end
+   proc {Recurs Wilds N}
+      if (N>0) then Rand in 
+	 %Une fois de temps en temps, ajouter des xp !
+	 Rand = {OS.rand} mod 5O
+	 if (Rand < 50 ) then
+	    {Browse "Remise de santé et d'xp à"}
+	    {Browse {Send Wilds.N getState($)}}
+	    {Send Width.N setHpMax}
+	    {Send Width.N addXp(1)}
+	    {Send Width.N levelup}
+	 end
+      end
+   end
+in
+   {Recurs Wilds Width}
+end
+thread {WildsHealthXP Wilds 100} end
