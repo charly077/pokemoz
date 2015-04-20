@@ -642,7 +642,6 @@ end
 
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
 
-Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
 
 
 fun {MoveLeft Init}
@@ -788,6 +787,7 @@ fun{CreatePokemoz5 Name}
    end
    p(type:Type name:Name hp:20 lx:5 xp:0)
 end
+Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
 
 
 fun{CreateRandPokemoz}
@@ -1101,7 +1101,7 @@ XMap
 %Démarrage du jeux
 CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
 
-%Créer le pokémon du perso principal
+%Créer le pokCreatePokemoz5émon du perso principal
 PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} }
 
 
