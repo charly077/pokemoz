@@ -71,14 +71,15 @@ N=7
 
 Proba = 50
 
+
 GrassCombat % car la fonction est utilisée avant d'être définie
 MapTrainers Map % Pour gérer les map
 %% Variables initiales
 Names = names("Jean" "Sacha" "Ondine" "Pierre")
-Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
+Pokemozs = pokemozs("Bulbasoz" "Oztirtle" "Charmandoz")
 
-Pokemozs = pokemozs("Bulbasoz" "Oztirlte" "Charmandoz")
 Types = types(fire water grass)
+Wilds
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% Création graphique de la map %%%%%%%%%%%%%%%%%%%%%%
@@ -287,7 +288,6 @@ fun {StartCombat Attaque AttaquantPort P}
 	       canvas(handle:CanvasAttaquant width:700 height:300 bg:white)
 	       canvas(handle:CanvasPersoPrincipal width:700 height:300 bg:white)
 	       label(handle:LabelPersoPrincipal glue:w)
-	       button(text:"Close" action:toplevel#close width:10 glue:we bg:white)
 	       placeholder(handle:PlaceHolder))
    Label
 in
@@ -304,7 +304,7 @@ in
    thread
       {Delay 1000}
          %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
-      {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send P attack} end width:10)))}
+      {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send P attack} end width:10)  button(text:"Close" action:toplevel#close width:10 glue:we bg:white)))}
    end
    combat(canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal)
 end
@@ -642,6 +642,8 @@ end
 
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
 
+Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
+
 
 fun {MoveLeft Init}
    B Grass in {Send MapTrainers check((Init.x)-1 Init.y B)} {Send Map check((Init.x)-1 Init.y Grass)}
@@ -715,6 +717,20 @@ fun {FTrainer Msg Init}
    end
 end
 
+fun {CreateOtherPortObjectTrainers Number Speed Canvas}
+   Trainers = {CreateOtherTrainer Number Speed Canvas}
+   %% fonction pour permettre de créer des portObject des trainers
+   fun {Recurs NumberLeft Trainers}
+      if (NumberLeft == 0 ) then trainers()
+      else
+	 {Browse NumberLeft}
+	 {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers({NewPortObject FTrainer Trainers.NumberLeft}) $}
+      end
+   end
+in
+   {Recurs Number Trainers}
+end
+
 
 % %test
 
@@ -776,7 +792,7 @@ end
 
 fun{CreateRandPokemoz}
    Type Name Hp Lx in
-   Type=Types.(({OS.rand} mod {Width Types})+1)
+   Type=Types.(({OS.rand} mod {Width Types})+1) %%%%%%%%%%%%%%%%%%%%%Euhhhhhh si tu mets un type aléatoire .. tu peux pas mettre un nom aléatoire si ?
    Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
    Lx=5+ {OS.rand} mod 5
    Hp=20 +2*(Lx-5)
@@ -888,6 +904,29 @@ fun{GagneContre Y Status}
    {LevelUp {UpdateXp Perdant Status}}
 end
 
+%%%% Fonction pour faire évoluer les wilds pokemoz %%%%%%
+proc {WildsXpAdd Wilds DelayToApply}
+   Width = {Record.width Wilds}
+   proc {Recursion Wilds Width}
+      {Delay DelayToApply}
+      {Recurs Wilds Width}
+      {Recursion Wilds Width}
+   end
+   proc {Recurs Wilds N}
+      if (N>0) then Rand in 
+	 %Une fois de temps en temps, ajouter des xp !
+	 Rand = {OS.rand} mod 1000
+	 if (Rand < 100 ) then
+	    {Browse "Remise d'xp à"}
+	    {Browse {Send Wilds.N getState($)}}
+	    {Send Width.N addXp(1)}
+	    {Send Width.N levelup}
+	 end
+      end
+   end
+in
+   {Recurs Wilds Width}
+end
    
 
 
@@ -965,16 +1004,11 @@ proc{CombatWild StateX Y}
    end
    P S StateY Combat StatePokemozX StateCombat
 in
-   %{Browse combatWild}
    P={NewPort S}
    {Browse newPort}
-   %{Browse X}
-   %{Send X getState(StateX)}
-  % {Browse StateX}
+   if ({Send Y getHp($)}<1) then {Send  Y setHpMax} end
    {Send Y getState(StateY)}
-  % {Browse StateY}
    {Send StateX.p getState(StatePokemozX)}
-  % {Browse StatePokemozX}
    if ({And StatePokemozX.hp>0 StateY.hp>0}) then
       Combat = {StartCombat StateX Y P }
       {SetCombatState Combat StatePokemozX StateY}
@@ -1030,7 +1064,7 @@ in
    end
 end
 
-Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
+
 
 proc {GrassCombat PersoState}
    %Création d'un nombre aléatoire pour respecter la proba : génération d'un nombre entre 0 et 100 et regarder si le nombre est inférieur à la Proba definie tout en haut :)
@@ -1071,26 +1105,11 @@ CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc
 PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} }
 
 
-proc {WildsHealthXP Wilds DelayToApply}
-   Width = {Record.width Wilds}
-   proc {Recursion Wilds Width}
-      {Delay DelayToApply}
-      {Recurs Wilds Width}
-   end
-   proc {Recurs Wilds N}
-      if (N>0) then Rand in 
-	 %Une fois de temps en temps, ajouter des xp !
-	 Rand = {OS.rand} mod 5O
-	 if (Rand < 50 ) then
-	    {Browse "Remise de santé et d'xp à"}
-	    {Browse {Send Wilds.N getState($)}}
-	    {Send Width.N setHpMax}
-	    {Send Width.N addXp(1)}
-	    {Send Width.N levelup}
-	 end
-      end
-   end
-in
-   {Recurs Wilds Width}
-end
-thread {WildsHealthXP Wilds 100} end
+%%%%% Fonction qui fait évoluer les pokémoz sauvages %%%%% j'hesite à la place d'implémenter dans les mvt
+thread {WildsXpAdd Wilds 100} end
+
+%%%%% Fonction pour créer des autres personnages %%%%%%%%%
+
+declare
+Coucou = {CreateOtherPortObjectTrainers 3 10 CanvasMap}
+{Browse Coucou}
