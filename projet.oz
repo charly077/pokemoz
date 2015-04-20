@@ -30,38 +30,38 @@ declare
 %Declaration QTk
 [QTk] = {Module.link ['x-oz://system/wp/QTk.ozf']}
 
-% GrassImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/herbe.gif')}
-% RoadImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/chemin.gif')}
-
-% % Création des images des pokémons
-% Bulbasoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Bulbasoz.gif')}
-% Oztirtle = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Oztirtle.gif')}
-% Charmandoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Charmandoz.gif')}
-
-
-% % Création des images des Dresseurs
-% PersoPrincipalImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipal.gif')}
-% PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipalGrand.gif')}
-% PersoSauvageImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvage.gif')}
-% PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvageGrand.gif')}
-
-
-
-% Création des images 
-GrassImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/herbe.gif')}
-RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
+GrassImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/herbe.gif')}
+RoadImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/chemin.gif')}
 
 % Création des images des pokémons
-Bulbasoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Bulbasoz.gif')}
-Oztirtle = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Oztirtle.gif')}
-Charmandoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Charmandoz.gif')}
+Bulbasoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Bulbasoz.gif')}
+Oztirtle = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Oztirtle.gif')}
+Charmandoz = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/Charmandoz.gif')}
 
 
 % Création des images des Dresseurs
-PersoPrincipalImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
-PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipalGrand.gif')}
-PersoSauvageImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvage.gif')}
-PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvageGrand.gif')}
+PersoPrincipalImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipal.gif')}
+PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoPrincipalGrand.gif')}
+PersoSauvageImage = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvage.gif')}
+PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/jeromelemaire/Desktop/EPL/Q6/OZ/Projet/pokemoz/persoSauvageGrand.gif')}
+
+
+
+% % Création des images 
+% GrassImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/herbe.gif')}
+% RoadImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/chemin.gif')}
+
+% % Création des images des pokémons
+% Bulbasoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Bulbasoz.gif')}
+% Oztirtle = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Oztirtle.gif')}
+% Charmandoz = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/Charmandoz.gif')}
+
+
+% % Création des images des Dresseurs
+% PersoPrincipalImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipal.gif')}
+% PersoPrincipalImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoPrincipalGrand.gif')}
+% PersoSauvageImage = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvage.gif')}
+% PersoSauvageImageGrand = {QTk.newImage photo(file:'/Users/charles/Desktop/pokemoz/persoSauvageGrand.gif')}
 
 % Création des variables utililes pour la gestion de la fenêtre
 HeightWidth=60
@@ -549,215 +549,9 @@ fun {FMap Msg MapState}
 end
 
 
-% Remis au dessu car on peu plus avoir de déclare à l'intérieur !!!!!  declare MapTrainers Map
+
 MapTrainers={NewPortObject FMap {CreateEmptyMap}}
 Map={NewPortObject FMap {CreateMap}}
-
-%test
-% {Browse {Check 5 6 Maptrainers}} % Idiot ne peut pas marcher car Maptrainers est un port
-%local X in {Send Map get(X)} {Browse X} end
-% local X in {Send MapTrainers get(X)} {Browse X} end
-% {Send Map setMap(5 6)} 
-% {Send MapTrainers setMap(2 2)}
-
-%local B in {Send MapTrainers checkin(5  B)} {Browse B} end
-% local B in {Send MapTrainers check((0-1) (2-3) B)} {Browse B} end
-% local X in {Send Map get(X)} {Browse X} end
-%local X in {Send MapTrainers get(X)} {Browse X} end
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%% Gestion Trainers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Le trainer represente les dresseurs se situant sur la carte et 
-% les actions qu'il peut effectuer en fonction d'ou il se trouve
-% sur la map.
-%
-% Un trainer est represente sous la forme de d'un record dont
-% la structure est :
-% Trainer = t(p:_ speed:_ auto:_ x:X y:Y handle:_ type:wild/persoPrincipal name:Name)
-%
-%type : est un atom
-%
-%
-%
-
-%%%%%%%%%%%%%%%%% Fonctions de créations de Trainers %%%%%%%%%%%%%%%%
-
-%Creation d'un record trainer spécifique
-
-fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
-   local B in {Send MapTrainers check(X Y B)}
-      if B then {Send MapTrainers setMap(X Y)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
-      else {CreateTrainer Name Pokemoz X+1 Y Speed Type Canvas} %% TODO attention pas top car je ne verrifie pas si on est encore dans le terrain
-      end
-   end
-end
-
-%declare
-%T1={CreateTrainer "Jean" "dfss" 4 6 4 "wild"}
-%{Browse T1}
-
-% Création d'un record trainer sauvage aleatoire
-fun {CreateRandTrainer  Speed Number Canvas}
-   local Name X Y Pokemoz Type in
-      Name = Names.Number
-      Pokemoz = Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
-      X=({OS.rand} mod 7)+1
-      Y=({OS.rand} mod 7)+1
-      Type="wild"
-      {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
-   end
-end
-
-% %test
-% declare
-% T1={CreateRandTrainer 4  1}
-% {Browse T1}
-
-
-%Creation d'un record trainers contenant des trainers aleatoires
-fun{CreateOtherTrainer Number Speed Canvas}
-   local R
-      fun{CreateOtherTrainers Number Speed Trainers Canvas}
-	 if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed Canvas}} Canvas}
-	 else Trainers
-	 end
-      end
-      in {MakeRecord trainers [1] R}
-	 {CreateOtherTrainers Number Speed R Canvas}	 
-      end
-end
-
-
-% %test
-% declare
-% Trainers = {CreateOtherTrainer 3 4}
-% {Browse Trainers}
-% {Browse Trainers.3}
-
-
-
-%%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
-
-
-
-fun {MoveLeft Init}
-   B Grass in {Send MapTrainers check((Init.x)-1 Init.y B)} {Send Map check((Init.x)-1 Init.y Grass)}
-   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x)-1 Init.y)}
-      {Move Init moveLeft}
-      if Grass==false then {GrassCombat Init} end
-      {AdjoinAt Init x (Init.x)-1}
-      else Init
-      end
-end
-
-fun {MoveRight Init}
-   B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
-   if B then {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x)+1 Init.y)}
-      {Move Init moveRight}
-      if Grass==false then {GrassCombat Init} end
-      {AdjoinAt Init x (Init.x)+1}
-      else Init
-   end
-end
-
-
-fun {MoveUp Init}
-   B Grass in {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)}
-   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x) (Init.y)-1)}
-      {Move Init moveUp}
-      if Grass==false then {GrassCombat Init} end
-      {AdjoinAt Init y (Init.y)-1}
-      else Init
-   end
-end
-
-
-fun {MoveDown Init}
-   B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
-   if B then {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x) (Init.y)+1)}
-      {Move Init moveDown}
-      if Grass==false then  {GrassCombat Init} end
-      {AdjoinAt Init y (Init.y)+1}
-      else Init
-   end
-end
-
-%%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
-
-
-fun {SetAuto Init}
-   if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
-   else {AdjoinAt Init auto (Init.auto)+1}
-   end
-end
-
-
-%%%%%%%%%%%%% fonction mere trainer %%%%%%%%%%%%%%%%%%
-
-fun {FTrainer Msg Init}
-   case Msg
-   of moveLeft then {MoveLeft Init} 
-   [] moveRight then {MoveRight Init} 
-   [] moveDown then {MoveDown Init} 
-   [] moveUp then {MoveUp Init}
-   [] setauto then {SetAuto Init}
-   [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
-   [] getPortObject(R) then R = Init.portObject Init
-   [] get(X) then X=Init Init
-   [] getState(State) then State=Init Init
-   end
-end
-
-fun {CreateOtherPortObjectTrainers Number Speed Canvas}
-   Trainers = {CreateOtherTrainer Number Speed Canvas}
-   %% fonction pour permettre de créer des portObject des trainers
-   fun {Recurs NumberLeft Trainers}
-      if (NumberLeft == 0 ) then trainers()
-      else
-	 {Browse NumberLeft}
-	 {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers({NewPortObject FTrainer Trainers.NumberLeft}) $}
-      end
-   end
-in
-   {Recurs Number Trainers}
-end
-
-
-% %test
-
-% local X in {Send MapTrainers get(X)} {Browse X} end
-% declare T1
-% T1={NewPortObject FTrainer {CreateTrainer "Jean" "Bulboz" 7 7 2 "wild"}}
-% declare T2
-% T2={NewPortObject FTrainer {CreateTrainer "Jean2" "Bulboz" 5 5 2 "wild"}}
-% declare T3
-% T3={NewPortObject FTrainer {CreateTrainer "Jean3" "Bulboz" 5 5 2 "wild"}}
-
-% local X in {Send T1 get(X)} {Browse X} end
-% local X in {Send T2 get(X)} {Browse X} end
-% local X in {Send T3 get(X)} {Browse X} end
-% % {Send T1 setauto}
-% {Send T3 moveRight} %bug collision
-% {Send T3 moveUp}
-% {Send T3 moveLeft} 
-% {Send T3 moveDown}
-% local X in {Send T1 get(X)} {Browse X} end
-
-% {Send T2 moveUp}
-% {Send T2 moveLeft}
-% local X in {Send T2 get(X)} {Browse X} end
-% local X in {Send T3 get(X)} {Browse X} end
-% {Send T3 moveUp}
-% {Send T3 moveLeft}
-% local X in {Send T3 get(X)} {Browse X} end
 
 
 
@@ -787,13 +581,17 @@ fun{CreatePokemoz5 Name}
    end
    p(type:Type name:Name hp:20 lx:5 xp:0)
 end
+Po
 Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
 
 
 fun{CreateRandPokemoz}
    Type Name Hp Lx in
-   Type=Types.(({OS.rand} mod {Width Types})+1) %%%%%%%%%%%%%%%%%%%%%Euhhhhhh si tu mets un type aléatoire .. tu peux pas mettre un nom aléatoire si ?
    Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
+   case Name of "Bulbasoz" then Type=grass
+   [] "Oztirtle" then Type=water
+   [] "Charmandoz" then Type=fire
+   end
    Lx=5+ {OS.rand} mod 5
    Hp=20 +2*(Lx-5)
    p(type:Type name:Name hp:Hp lx:Lx xp:0)
@@ -813,8 +611,11 @@ fun{CreatePokemozTrainer T}
    Type Name Hp Lx Trainer Pokemoz in
    {Send T get(Trainer)}
    {Send Trainer.p get(Pokemoz)}
-   Type=Types.(({OS.rand} mod {Width Types})+1)
    Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
+   case Name of "Bulbasoz" then Type=grass
+   [] "Oztirtle" then Type=water
+   [] "Charmandoz" then Type=fire
+   end
    Lx={LevelRand Pokemoz.lx}
    Hp=20 +2*(Lx-5)
    p(type:Type name:Name hp:Hp lx:Lx xp:0)
@@ -951,24 +752,157 @@ fun{FPokemoz Msg State}
    end
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Gestion Trainers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% declare P1 P2 P3 T1
-%  T1={NewPortObject FTrainer t(p:{CreateRandPokemoz} speed:4 auto:1 x:9 y:1 handle:1 type:persoPrincipal name:"Sacha")}
-%  P1={NewPortObject FPokemoz {CreateRandPokemoz}}
-%  P2={NewPortObject FPokemoz {CreateRandPokemoz}}
-%  P3={NewPortObject FPokemoz {CreateRandPokemoz}}
+% Le trainer represente les dresseurs se situant sur la carte et 
+% les actions qu'il peut effectuer en fonction d'ou il se trouve
+% sur la map.
+%
+% Un trainer est represente sous la forme de d'un record dont
+% la structure est :
+% Trainer = t(p:_ speed:_ auto:_ x:X y:Y handle:_ type:wild/persoPrincipal name:Name)
+%
+%type : est un atom
+%
+%
+%
+
+%%%%%%%%%%%%%%%%% Fonctions de créations de Trainers %%%%%%%%%%%%%%%%
+
+%Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
+
+%Creation d'un record trainer spécifique
+
+fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
+   local B in {Send MapTrainers check(X Y B)} %% attention eviter les dresseurs en bas à droit et en haut à droite
+      if B then {Send MapTrainers setMap(X Y)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
+      else {CreateTrainer Name Pokemoz X+1 Y Speed Type Canvas}
+      end
+   end
+end
+
+
+% Création d'un record trainer sauvage aleatoire
+fun {CreateRandTrainer  Speed Number Canvas}
+   local Name X Y Pokemoz Type in
+      Name = Names.Number
+      Pokemoz = {NewPortObject FPokemoz {CreatePokemoz5 Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)}} 
+      X=({OS.rand} mod 7)+1
+      Y=({OS.rand} mod 7)+1
+      Type= wild
+      {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
+   end
+end
+
+
+%Creation d'un record trainers contenant des trainers aleatoires
+fun{CreateOtherTrainer Number Speed Canvas}
+   local R
+      fun{CreateOtherTrainers Number Speed Trainers Canvas}
+	 if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed Canvas}} Canvas}
+	 else Trainers
+	 end
+      end
+      in {MakeRecord trainers [1] R}
+	 {CreateOtherTrainers Number Speed R Canvas}	 
+      end
+end
 
 
 
-%  local X in {Send P1 get(X)} {Browse X} end
-%  local X in {Send P2 get(X)} {Browse X} end
-%  local X in {Send P3 get(X)} {Browse X} end
+%%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
 
-%  local X in {Send P1 attack(P2 X)} {Browse X} end
-%  {Send P2 attackBy(P1)}
-%  {Send P1 gagneContre(P2)}
-% local X in {Send P1 stillAlife(X)} {Browse X} end
 
+
+fun {MoveLeft Init}
+   B Grass in {Send MapTrainers check((Init.x)-1 Init.y B)} {Send Map check((Init.x)-1 Init.y Grass)}
+   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x)-1 Init.y)}
+      {Move Init moveLeft}
+      if Grass==false then {GrassCombat Init} end
+      {AdjoinAt Init x (Init.x)-1}
+      else Init
+      end
+end
+
+fun {MoveRight Init}
+   B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
+   if B then {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x)+1 Init.y)}
+      {Move Init moveRight}
+      if Grass==false then {GrassCombat Init} end
+      {AdjoinAt Init x (Init.x)+1}
+      else Init
+   end
+end
+
+
+fun {MoveUp Init}
+   B Grass in {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)}
+   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x) (Init.y)-1)}
+      {Move Init moveUp}
+      if Grass==false then {GrassCombat Init} end
+      {AdjoinAt Init y (Init.y)-1}
+      else Init
+   end
+end
+
+
+fun {MoveDown Init}
+   B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
+   if B then {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x) (Init.y)+1)}
+      {Move Init moveDown}
+      if Grass==false then  {GrassCombat Init} end
+      {AdjoinAt Init y (Init.y)+1}
+      else Init
+   end
+end
+
+%%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
+
+
+fun {SetAuto Init}
+   if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
+   else {AdjoinAt Init auto (Init.auto)+1}
+   end
+end
+
+
+%%%%%%%%%%%%% fonction mere trainer %%%%%%%%%%%%%%%%%%
+
+fun {FTrainer Msg Init}
+   case Msg
+   of moveLeft then {MoveLeft Init} 
+   [] moveRight then {MoveRight Init} 
+   [] moveDown then {MoveDown Init} 
+   [] moveUp then {MoveUp Init}
+   [] setauto then {SetAuto Init}
+   [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
+   [] getPortObject(R) then R = Init.portObject Init
+   [] get(X) then X=Init Init
+   [] getState(State) then State=Init Init
+   end
+end
+
+fun {CreateOtherPortObjectTrainers Number Speed Canvas}
+   Trainers = {CreateOtherTrainer Number Speed Canvas}
+   {Browse Trainers}
+   %% fonction pour permettre de créer des portObject des trainers
+   fun {Recurs NumberLeft Trainers}
+      if (NumberLeft == 0 ) then trainers()
+      else
+	 {Browse NumberLeft}
+	 {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}
+	 
+      end
+   end
+in
+   {Recurs Number Trainers}
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%% Gestion de combat %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1111,5 +1045,6 @@ thread {WildsXpAdd Wilds 100} end
 %%%%% Fonction pour créer des autres personnages %%%%%%%%%
 
 declare
-Coucou = {CreateOtherPortObjectTrainers 3 10 CanvasMap}
-{Browse Coucou}
+
+Coucou = {CreateOtherPortObjectTrainers 4 3 CanvasMap}
+
