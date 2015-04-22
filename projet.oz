@@ -667,7 +667,7 @@ fun {SetHpMax State}
 end
 
 
-fun{AttackBy Y Init} Attaquant in {Send Y get(Attaquant)}
+fun {AttackBy Y Init} Attaquant in {Send Y get(Attaquant)}
    case Init.type
    of fire then case Attaquant.type
 		of fire then {AdjoinAt Init hp ((Init.hp)-2)}
@@ -778,7 +778,7 @@ end
 fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
    local B in {Send MapTrainers check(X Y B)} %% attention eviter les dresseurs en bas à droit et en haut à droite
       if B then {Send MapTrainers setMap(X Y)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
-      else {CreateTrainer Name Pokemoz X+1 Y Speed Type Canvas}
+      else {CreateTrainer Name Pokemoz ({OS.rand} mod 7)+1 ({OS.rand} mod 7)+1 Speed Type Canvas}
       end
    end
 end
@@ -809,101 +809,6 @@ fun{CreateOtherTrainer Number Speed Canvas}
 	 {CreateOtherTrainers Number Speed R Canvas}	 
       end
 end
-
-
-
-%%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
-
-
-
-fun {MoveLeft Init}
-   B Grass in {Send MapTrainers check((Init.x)-1 Init.y B)} {Send Map check((Init.x)-1 Init.y Grass)}
-   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x)-1 Init.y)}
-      {Move Init moveLeft}
-      if Grass==false then {GrassCombat Init} end
-      {AdjoinAt Init x (Init.x)-1}
-      else Init
-      end
-end
-
-fun {MoveRight Init}
-   B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
-   if B then {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x)+1 Init.y)}
-      {Move Init moveRight}
-      if Grass==false then {GrassCombat Init} end
-      {AdjoinAt Init x (Init.x)+1}
-      else Init
-   end
-end
-
-
-fun {MoveUp Init}
-   B Grass in {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)}
-   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x) (Init.y)-1)}
-      {Move Init moveUp}
-      if Grass==false then {GrassCombat Init} end
-      {AdjoinAt Init y (Init.y)-1}
-      else Init
-   end
-end
-
-
-fun {MoveDown Init}
-   B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
-   if B then {Send MapTrainers setMap((Init.x) Init.y)}
-      {Send MapTrainers setMap((Init.x) (Init.y)+1)}
-      {Move Init moveDown}
-      if Grass==false then  {GrassCombat Init} end
-      {AdjoinAt Init y (Init.y)+1}
-      else Init
-   end
-end
-
-%%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
-
-
-fun {SetAuto Init}
-   if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
-   else {AdjoinAt Init auto (Init.auto)+1}
-   end
-end
-
-
-%%%%%%%%%%%%% fonction mere trainer %%%%%%%%%%%%%%%%%%
-
-fun {FTrainer Msg Init}
-   case Msg
-   of moveLeft then {MoveLeft Init} 
-   [] moveRight then {MoveRight Init} 
-   [] moveDown then {MoveDown Init} 
-   [] moveUp then {MoveUp Init}
-   [] setauto then {SetAuto Init}
-   [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
-   [] getPortObject(R) then R = Init.portObject Init
-   [] get(X) then X=Init Init
-   [] getState(State) then State=Init Init
-   end
-end
-
-fun {CreateOtherPortObjectTrainers Number Speed Canvas}
-   Trainers = {CreateOtherTrainer Number Speed Canvas}
-   {Browse Trainers}
-   %% fonction pour permettre de créer des portObject des trainers
-   fun {Recurs NumberLeft Trainers}
-      if (NumberLeft == 0 ) then trainers()
-      else
-	 {Browse NumberLeft}
-	 {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}
-	 
-      end
-   end
-in
-   {Recurs Number Trainers}
-end
-
 
 %%%%%%%%%%%%%%%%%%%%%% Gestion de combat %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -1017,6 +922,160 @@ in
    end
 end
 
+
+% fun {CheckDesseur Init}
+   
+% end
+
+%%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
+
+
+proc {MoveOther RecordPortTrainer DelayToApply}
+   Width = {Record.width RecordPortTrainer}
+   Move=move(moveUp moveDown moveRight moveLeft)
+   Delai=DelayToApply
+   Speed=4
+   ProbMove=10
+   proc {MoveTrainer RecordPortTrainer N}
+      if N>0 then
+	 if ProbMove>({OS.rand} mod 100)+1 then
+	    {Send RecordPortTrainer.N Move.(({OS.rand} mod 4)+1)}
+	    {MoveTrainer RecordPortTrainer N-1}
+	 end
+      end
+   end
+in
+   {MoveTrainer RecordPortTrainer Width}
+   {MoveOther RecordPortTrainer DelayToApply}
+end
+
+% fun{MoveOther RecordPortTrainer NumTrainer}
+%    Move
+%    Delai % parametre a remonter pas la suite 
+%    Speed % idem
+% in
+%    Move=[moveUp moveDown moveRight moveLeft]
+%    Delai=200
+%    Speed=4
+%    {Delay ((10-Speed)*Delai)}
+%    if NumTrainer>0
+%    then	 
+%       {Send RecordPortTrainer.NumTrainer Move.(({OS.rand} mod 4)+1)}
+%       {MoveOther RecordPortTrainer (NumTrainer-1)}
+%    else
+%       {MoveOther RecordPortTrainer {Width RecordPortTrainer}}
+%    end  
+% end
+
+
+% fun {MoveOtherTrainer RecPortTrainers}
+%    Move
+%    Delai % parametre a remonter pas la suite 
+%    Speed % idem
+% in
+%    Move=[moveUp moveDown moveRight moveLeft]
+%    Delai=200
+%    Speed=4
+%    {Delay ((10-Speed)*Delai)}
+%    {MoveOther RecPortTrainers s}
+%    {MoveOtherTrainer RecPortTrainers}
+% end
+
+   
+      
+
+fun {MoveLeft Init}
+   B Grass TypePerso in {Send MapTrainers check((Init.x)-1 Init.y B)}
+   {Send Map check((Init.x)-1 Init.y Grass)}
+   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x)-1 Init.y)}
+      {Move Init moveLeft}
+      if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end %% Ajouter la condition que c'est le preso principal
+      {AdjoinAt Init x (Init.x)-1}
+      else Init
+      end
+end
+
+fun {MoveRight Init}
+   B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
+   if B then {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x)+1 Init.y)}
+      {Move Init moveRight}
+      if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end
+      {AdjoinAt Init x (Init.x)+1}
+      else Init
+   end
+end
+
+
+fun {MoveUp Init}
+   B Grass in {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)}
+   if B then  {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x) (Init.y)-1)}
+      {Move Init moveUp}
+      if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end
+      {AdjoinAt Init y (Init.y)-1}
+      else Init
+   end
+end
+
+
+fun {MoveDown Init}
+   B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
+   if B then {Send MapTrainers setMap((Init.x) Init.y)}
+      {Send MapTrainers setMap((Init.x) (Init.y)+1)}
+      {Move Init moveDown}
+      if {And (Grass==false) (Init.type==persoPrincipal)} then  {GrassCombat Init} end
+      {AdjoinAt Init y (Init.y)+1}
+      else Init
+   end
+end
+
+%%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
+
+
+fun {SetAuto Init}
+   if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
+   else {AdjoinAt Init auto (Init.auto)+1}
+   end
+end
+
+
+%%%%%%%%%%%%% fonction mere trainer %%%%%%%%%%%%%%%%%%
+
+fun {FTrainer Msg Init}
+   case Msg
+   of moveLeft then {MoveLeft Init} 
+   [] moveRight then {MoveRight Init} 
+   [] moveDown then {MoveDown Init} 
+   [] moveUp then {MoveUp Init}
+   [] setauto then {SetAuto Init}
+   [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
+   [] getPortObject(R) then R = Init.portObject Init
+   [] get(X) then X=Init Init
+   [] getState(State) then State=Init Init
+   end
+end
+
+fun {CreateOtherPortObjectTrainers Number Speed Canvas}
+   Trainers = {CreateOtherTrainer Number Speed Canvas}
+   {Browse Trainers}
+   %% fonction pour permettre de créer des portObject des trainers
+   fun {Recurs NumberLeft Trainers}
+      if (NumberLeft == 0 ) then trainers()
+      else
+	 {Browse NumberLeft}
+	 {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}
+	 
+      end
+   end
+in
+   {Recurs Number Trainers}
+end
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1045,6 +1104,18 @@ thread {WildsXpAdd Wilds 100} end
 %%%%% Fonction pour créer des autres personnages %%%%%%%%%
 
 declare
+Coucou = {CreateOtherPortObjectTrainers 3 3 CanvasMap}
+{Browse Coucou}
+{Send Coucou.1 moveUp}
+{Send Coucou.1 moveRight}
+{Send Coucou.1 moveDown}
 
-Coucou = {CreateOtherPortObjectTrainers 4 3 CanvasMap}
-
+thread {MoveOther Coucou 200} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!!
+%%% To DO :
+% Gestion mouvement autres dresseurs attention ils déclanchent des combats 
+%
+% Gestion lancement combat avec dresseur
+% Gestion Combat automatique
+% Remettre de l'ordre dans le code
+%
+%
