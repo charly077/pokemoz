@@ -935,7 +935,7 @@ proc {MoveOther RecordPortTrainer DelayToApply}
    Move=move(moveUp moveDown moveRight moveLeft)
    Delai=DelayToApply
    Speed=4
-   ProbMove=10
+   ProbMove=65
    proc {MoveTrainer RecordPortTrainer N}
       if N>0 then
 	 if ProbMove>({OS.rand} mod 100)+1 then
@@ -945,41 +945,12 @@ proc {MoveOther RecordPortTrainer DelayToApply}
       end
    end
 in
+   {Delay ((10-Speed)*Delai)}
    {MoveTrainer RecordPortTrainer Width}
    {MoveOther RecordPortTrainer DelayToApply}
 end
 
-% fun{MoveOther RecordPortTrainer NumTrainer}
-%    Move
-%    Delai % parametre a remonter pas la suite 
-%    Speed % idem
-% in
-%    Move=[moveUp moveDown moveRight moveLeft]
-%    Delai=200
-%    Speed=4
-%    {Delay ((10-Speed)*Delai)}
-%    if NumTrainer>0
-%    then	 
-%       {Send RecordPortTrainer.NumTrainer Move.(({OS.rand} mod 4)+1)}
-%       {MoveOther RecordPortTrainer (NumTrainer-1)}
-%    else
-%       {MoveOther RecordPortTrainer {Width RecordPortTrainer}}
-%    end  
-% end
 
-
-% fun {MoveOtherTrainer RecPortTrainers}
-%    Move
-%    Delai % parametre a remonter pas la suite 
-%    Speed % idem
-% in
-%    Move=[moveUp moveDown moveRight moveLeft]
-%    Delai=200
-%    Speed=4
-%    {Delay ((10-Speed)*Delai)}
-%    {MoveOther RecPortTrainers s}
-%    {MoveOtherTrainer RecPortTrainers}
-% end
 
    
       
