@@ -581,7 +581,7 @@ fun{CreatePokemoz5 Name}
    end
    p(type:Type name:Name hp:20 lx:5 xp:0)
 end
-Po
+
 Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
 
 
