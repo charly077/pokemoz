@@ -50,6 +50,7 @@ define
    Map
    DSpeed
    
+   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Map %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,12 +106,16 @@ define
 	 end
       end
    in
+      {Show move}
+      {Show Movement}
       N=10
+      {Show DSpeed}
       TimeDelay = DSpeed div N
+      {Show divPoseProblem}
       NSpace = WidthBetween div N
       CanvasPerso = Perso.handle
       case Movement of nil then skip
-      []moveUp then {MoveDelay 0 ~WidthBetween}
+      []moveUp then {Show youhouuuuu} {MoveDelay 0 ~WidthBetween}
       []moveDown then {MoveDelay 0 WidthBetween}
       []moveLeft then {MoveDelay ~WidthBetween 0}
       []moveRight then {MoveDelay WidthBetween 0}

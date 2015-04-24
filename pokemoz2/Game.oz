@@ -26,11 +26,15 @@ define
    {Show 1}
    CreatePokemoz5 = Pokemoz.createPokemoz5
    {Show 2}
-   WildsXpAdd = Pokemoz.WildsXpAdd
-   {Show 3}
    SetCombatState = Graphic.setCombatState
    Choose = Graphic.choose
-   StartCombat = Graphic.StartCombat
+   StartCombat = Graphic.startCombat
+   FTrainer = Trainer.fTrainer
+   CreateTrainer = Trainer.createTrainer
+   InitTrainerFunctor = Trainer.initTrainerFunctor
+   CreateOtherPortObjectTrainers = Trainer.createOtherPortObjectTrainers
+   MoveOther = Trainer.moveOther
+      {Show 3}
 {Show 2}
    Proba=50
    
@@ -220,9 +224,31 @@ define
    end
 
 
+   %%%% Fonction pour faire évoluer les wilds pokemoz %%%%%%
+   proc {WildsXpAdd Wilds DelayToApply}
+      Width = {Record.width Wilds}
+      proc {Recursion Wilds Width}
+	 {Delay DelayToApply}
+	 {Recurs Wilds Width}
+	 {Recursion Wilds Width}
+      end
+      proc {Recurs Wilds N}
+	 if (N>0) then Rand in 
+	 %Une fois de temps en temps, ajouter des xp !
+	    Rand = {OS.rand} mod 1000
+	    if (Rand < 100 ) then
+	       {Browse "Remise d'xp à"}
+	       {Browse {Send Wilds.N getState($)}}
+	       {Send Width.N addXp(1)}
+	       {Send Width.N levelup}
+	    end
+	 end
+      end
+   in
+      {Recurs Wilds Width}
+   end
 
-      FTrainer = Trainer.fTrainer
-   CreateTrainer = Trainer.createTrainer
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% THE GAME %%%%%%%%%%%%%%%%%%%
 
    PortPersoPrincipal
@@ -230,7 +256,12 @@ define
    XMap
    PortPersoPrincipal
    Wilds = Pokemoz.wilds
+   RecordOtherPortObjectTrainers
+   Delai
+   Speed
 in
+   Delai=200
+   Speed = 4
    MapTrainers={NewPortObject FMap {CreateEmptyMap}}
    Map={NewPortObject FMap {CreateMap}}
    {Show befiremap}
@@ -238,11 +269,17 @@ in
    {Send Map get(XMap)}
    {Show map}
    %Démarrage du jeux
-   CanvasMap = {StartGame XMap (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end)}
+   CanvasMap = {StartGame (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end) ((10-Speed)*Delai)}
+   {InitTrainerFunctor GrassCombat MapTrainers Map} % Moyen de contrer un bug --'
    {Show canvas}
 
    PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} }
+   {Send PortPersoPrincipal moveUp}
 
    %%%%% Fonction qui fait évoluer les pokémoz sauvages %%%%% j'hesite à la place d'implémenter dans les mvt
-   thread {WildsXpAdd Wilds 100} end
+   thread {WildsXpAdd Wilds Delai} end
+
+   RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3 3 CanvasMap}
+   thread {MoveOther RecordOtherPortObjectTrainers Delai Speed} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!!
+   
 end

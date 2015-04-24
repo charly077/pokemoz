@@ -16,7 +16,6 @@ export
    CreatePokemozTrainer
    FPokemoz
    Pokemozs
-   WildsXpAdd
    
 define
    Show = System.show
@@ -191,29 +190,6 @@ end
       {LevelUp {UpdateXp Perdant Status}}
    end
 
-%%%% Fonction pour faire évoluer les wilds pokemoz %%%%%%
-   proc {WildsXpAdd Wilds DelayToApply}
-      Width = {Record.width Wilds}
-      proc {Recursion Wilds Width}
-	 {Delay DelayToApply}
-	 {Recurs Wilds Width}
-	 {Recursion Wilds Width}
-      end
-      proc {Recurs Wilds N}
-	 if (N>0) then Rand in 
-	 %Une fois de temps en temps, ajouter des xp !
-	    Rand = {OS.rand} mod 1000
-	    if (Rand < 100 ) then
-	       {Browse "Remise d'xp à"}
-	       {Browse {Send Wilds.N getState($)}}
-	       {Send Width.N addXp(1)}
-	       {Send Width.N levelup}
-	    end
-	 end
-      end
-   in
-      {Recurs Wilds Width}
-   end
    
 
 

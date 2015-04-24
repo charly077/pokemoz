@@ -18,6 +18,7 @@ export
    CreateTrainer
    CreateOtherTrainer
    MoveOther
+   InitTrainerFunctor
    
 define
    Show = System.show
@@ -29,8 +30,10 @@ define
    Pokemozs = Pokemoz.pokemozs
    Move = Graphic.move
    {Show leBugEstLa}
-   GrassCombat = Game.grassCombat
-   MapTrainers = Game.mapTrainers
+   GrassCombat
+   {Show iciAussi}
+   MapTrainers
+   Map
    {Show ouPas}
    
    Names = names("Jean" "Sacha" "Ondine" "Pierre")
@@ -40,6 +43,12 @@ define
 %%%%%%%%%%%%%%%%%%%%%% Fonctions de base %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject}
+      GrassCombat = GrassCombatFunction
+      MapTrainers = MapTrainersPortObject
+      Map = MapPortObject
+   end
+   
 
 % Port object abstraction
 % Init = initial state
@@ -121,11 +130,10 @@ Wilds = Pokemoz.wilds
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
 
 
-   proc {MoveOther RecordPortTrainer DelayToApply}
+   proc {MoveOther RecordPortTrainer DelayToApply Speed}
       Width = {Record.width RecordPortTrainer}
       Move=move(moveUp moveDown moveRight moveLeft)
       Delai=DelayToApply
-      Speed=4
       ProbMove=65
       proc {MoveTrainer RecordPortTrainer N}
 	 if N>0 then
@@ -138,7 +146,7 @@ Wilds = Pokemoz.wilds
    in
       {Delay ((10-Speed)*Delai)}
       {MoveTrainer RecordPortTrainer Width}
-      {MoveOther RecordPortTrainer DelayToApply}
+      {MoveOther RecordPortTrainer DelayToApply Speed}
    end
    
       
@@ -168,7 +176,9 @@ Wilds = Pokemoz.wilds
 
 
    fun {MoveUp Init}
-      B Grass in {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)}
+      B Grass in
+      {Show Init}
+      {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)} {Show errrorHere}
       if B then  {Send MapTrainers setMap((Init.x) Init.y)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1)}
 	 {Move Init moveUp}
@@ -207,7 +217,7 @@ Wilds = Pokemoz.wilds
       of moveLeft then {MoveLeft Init} 
       [] moveRight then {MoveRight Init} 
       [] moveDown then {MoveDown Init} 
-      [] moveUp then {MoveUp Init}
+      [] moveUp then {Show Init} {Show MapTrainers} {MoveUp Init}
       [] setauto then {SetAuto Init}
       [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
       [] getPortObject(R) then R = Init.portObject Init
@@ -232,6 +242,5 @@ Wilds = Pokemoz.wilds
       {Recurs Number Trainers}
    end
 
-in
-   {Show coucou}
+
 end
