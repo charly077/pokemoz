@@ -31,6 +31,8 @@ define
 
    GrassImage = {QTk.newImage photo(file:'herbe.gif')}
    RoadImage = {QTk.newImage photo(file:'chemin.gif')}
+   AreneImage = {QTk.newImage photo(file:'arene.gif')}
+   HomeImage = {QTk.newImage photo(file:'home.gif')}
 
    Bulbasoz = {QTk.newImage photo(file:'Bulbasoz.gif')}
    Oztirtle = {QTk.newImage photo(file:'Oztirtle.gif')}
@@ -40,6 +42,7 @@ define
    PersoPrincipalImageGrand = {QTk.newImage photo(file:'persoPrincipalGrand.gif')}
    PersoSauvageImage = {QTk.newImage photo(file:'persoSauvage.gif')}
    PersoSauvageImageGrand = {QTk.newImage photo(file:'persoSauvageGrand.gif')}
+
 
    % Windows usefull information
    HeightWidth=100
@@ -87,6 +90,8 @@ define
    in
       {Record.toList Map MapList}
       {Create MapList Canvas 50 50}
+      {Canvas create(image AddXY+WidthBetween*(N-1) AddXY+WidthBetween*(N-1) image:HomeImage)}
+      {Canvas create(image AddXY+WidthBetween*(N-1) AddXY image:AreneImage)}
    end
 
 
@@ -136,7 +141,7 @@ define
    %
    %Post : Renvoie le Canvas de la Map, il est utilile pour d'autres
    %       Fonctions
-   fun {StartGame MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal DSpeedToApply}
+   fun {StartGame MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal DSpeedToApply }
       CanvasMap
       WindowMap
       Desc
@@ -159,8 +164,7 @@ define
       {WindowMap bind(event:"<Left>" action:MoveLeftPrincipal)}
       {WindowMap bind(event:"<Down>" action:MoveDownPrincipal)}
       {WindowMap bind(event:"<Right>" action:MoveRightPrincipal)}
-
-      CanvasMap
+      game(canvasMap:CanvasMap windowMap:WindowMap)
    end
 
 
@@ -221,44 +225,50 @@ define
    %
 
    % Perso principal >< pokémoz sauvage
-   proc {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
+   fun {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
       ImageCanvasPersoPrincipal
+      AttaquantImage
+      AttaqueImage
       X
    in
       PokemozAttaquantName = Attaquant.name
       {Send Attaque.p getState(X)}
       PokemozPersoPrincipalName = X.name 
       % On peut mettre directement le pokemoz
-      {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
+      {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
       % Mettre l'image du dresseur pendant une seconde
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
       {Delay 3000}
       {ImageCanvasPersoPrincipal delete}
-      {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName})}
+      {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName}handle:AttaqueImage) }
+      combat(attaquantImage:AttaquantImage attaqueImage:AttaqueImage)
    end
 
    % Perso principal >< autre dresseur
-   proc {AttackTrainer  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
+   fun {AttackTrainer  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
       ImageCanvasPersoPrincipal
       ImageCanvasPersoSauvage
+      AttaquantImage
+      AttaqueImage
    in
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
       {CanvasAttaquant create(image 550 150 image:PersoSauvageImageGrand handle:ImageCanvasPersoSauvage)}
       {Delay 3000} % Permet de laisser les perso 3 secondes
       case Attaquant of  t(p:Z) then X in {Send Z getState(X)} PokemozAttaquantName = X.name end
       case Attaque of t(p:Z) then X in {Send Z getState(X)} PokemozPersoPrincipalName=X.name end
-      {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName})}
-      {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName})}
+      {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName} handle:AttaqueImage) }
+      {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
       {ImageCanvasPersoPrincipal delete}
       {ImageCanvasPersoSauvage delete}
+      combat(attaquantImage:AttaquantImage attaqueImage:AttaqueImage)
    end
 
-   %P est un port qui permet de savoir que le bouton attack à été appuyé
-   fun {StartCombat Attaque AttaquantPort P}
+   %PortAttaque est un port qui permet de savoir que le bouton attack à été appuyé
+   fun {StartCombat Attaque AttaquantPort PortAttack PausePortObject FightAuto}
       WindowCombat
       CanvasAttaquant
       CanvasPersoPrincipal
@@ -267,29 +277,38 @@ define
       LabelPersoPrincipal
       %Attaque
       Attaquant
+      LabelWriteAction
+      Font = {QTk.newFont font(family:"courier" size:15 weight:bold slant:italic)}
       Combat = td(title:"Pokemoz, the fight can begin !"
 		  label(handle:LabelAttaquant glue:e)
 		  canvas(handle:CanvasAttaquant width:700 height:300 bg:white)
 		  canvas(handle:CanvasPersoPrincipal width:700 height:300 bg:white)
 		  label(handle:LabelPersoPrincipal glue:w)
+		  label(handle:LabelWriteAction bg:c(20 50 120) borderwidth:3 justify:center width:65 font:Font)
 		  placeholder(handle:PlaceHolder))
       Label
+      ToAddCombat
+      proc {Close}
+	 {WindowCombat close}
+	 {Send PausePortObject continue}
+      end
    in
       WindowCombat = {QTk.build Combat}
       {WindowCombat show(modal:true)}
       {Send AttaquantPort getState(Attaquant)}
       {Record.label Attaquant Label}
-      case Label of p then {AttackWildPokemoz WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant} 
-      [] t then {AttackTrainer WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
+      case Label of p then ToAddCombat={AttackWildPokemoz WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant} 
+      [] t then ToAddCombat={AttackTrainer WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       else
 	 {Show "error StartCombat"}
       end
-      thread
-	 {Delay 1000}
-            %TODO tout est lancé il faut gérer le bouton attaquer !! (donc double attaque)
-	 {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send P attack} end width:10)  button(text:"Close" action:toplevel#close width:10 glue:we bg:white)))}
+      if (FightAuto == false) then
+	 thread
+	    {Delay 3500}
+	    {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)  button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+	 end
       end
-      combat(canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal)
+      {Record.adjoin ToAddCombat combat(windowCombat:WindowCombat canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal labelWriteAction:LabelWriteAction) $}
    end
 
 
@@ -303,21 +322,31 @@ define
 	 end
       end
       % Création du message de l'attaqué
-      Xp1 MsgAttaquant Hp1
-      Xp2 MsgAttaque Hp2
+      Xp1 MsgAttaquant Hp1 Lx1
+      Xp2 MsgAttaque Hp2 Lx2
+      Font
    in
       {Int.toString StateAttaquant.xp  Xp1}
       {Int.toString StateAttaquant.hp  Hp1}
-   
-      MsgAttaquant = {CreateString [ "Name : " StateAttaquant.name " xp : " Xp1 " HP : " Hp1]}
-      %Création du Message de l'attaquant
+      {Int.toString StateAttaquant.lx Lx1}
+
       {Int.toString StateAttaque.xp  Xp2}
       {Int.toString StateAttaque.hp  Hp2}
-   
-      MsgAttaque = {CreateString [ "Name : " StateAttaque.name " xp : " Xp2 " HP : " Hp2]}
-   
-      {Combat.labelAttaquant set(MsgAttaquant)}
-      {Combat.labelPersoPrincipal set(MsgAttaque)}
+      {Int.toString StateAttaque.lx Lx2}
+
+      if {And (StateAttaque.hp > 0) (StateAttaquant.hp > 0) } then 
+	 MsgAttaquant = {CreateString [ "Name: " StateAttaquant.name "  Level: " Lx1 "  XP: " Xp1 "  HP: " Hp1]}
+	 MsgAttaque = {CreateString [ "Name: " StateAttaque.name "  Level: " Lx2 "  XP: " Xp2 "  HP: " Hp2]}
+      elseif (StateAttaque.hp < 1) then
+	 MsgAttaquant = "Winner"
+	 MsgAttaque = "Loser"
+      else
+	 MsgAttaquant = "Loser"
+	 MsgAttaque = "Winner"
+      end
+      Font = {QTk.newFont font(family:"courier" size:20 weight:bold slant:italic)}
+      {Combat.labelAttaquant set(MsgAttaquant font:Font)}
+      {Combat.labelPersoPrincipal set(MsgAttaque font:Font)}
    end
 
 

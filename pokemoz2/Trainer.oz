@@ -31,18 +31,19 @@ define
    GrassCombat
    MapTrainers
    Map
+   WindowMap
    
    Names = names("Jean" "Sacha" "Ondine" "Pierre")
-   Proba = 50
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%% Fonctions de base %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject}
+   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse}
       GrassCombat = GrassCombatFunction
       MapTrainers = MapTrainersPortObject
       Map = MapPortObject
+      WindowMap = WindowMapToUse
    end
    
 
@@ -123,13 +124,23 @@ Wilds = Pokemoz.wilds
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
 
 
-   proc {MoveOther RecordPortTrainer DelayToApply Speed}
+   proc {MoveOther RecordPortTrainer DelayToApply Speed Pause}
       Width = {Record.width RecordPortTrainer}
       Move=move(moveUp moveDown moveRight moveLeft)
       Delai=DelayToApply
       ProbMove=65
+      fun {PauseRec}
+	 if ({Send Pause getState($)}==1) then {PauseRec}
+	 else
+	    1 % L'affectation met le programme en pause :)
+	 end
+      end
       proc {MoveTrainer RecordPortTrainer N}
+	 %During Combat we have to do a Pause !!!
+	 X = {PauseRec}
+      in
 	 if N>0 then
+	    {Delay 10} %% Avoid that 2 trainer use the same MapTrainerState so it can avoid collision and créate a fact that all trainer doesn't still move at the same time
 	    if ProbMove>({OS.rand} mod 100)+1 then
 	       {Send RecordPortTrainer.N Move.(({OS.rand} mod 4)+1)}
 	       {MoveTrainer RecordPortTrainer N-1}
@@ -139,7 +150,7 @@ Wilds = Pokemoz.wilds
    in
       {Delay ((10-Speed)*Delai)}
       {MoveTrainer RecordPortTrainer Width}
-      {MoveOther RecordPortTrainer DelayToApply Speed}
+      {MoveOther RecordPortTrainer DelayToApply Speed Pause}
    end
    
       
@@ -161,7 +172,10 @@ Wilds = Pokemoz.wilds
       if B then {Send MapTrainers setMap((Init.x) Init.y)}
 	 {Send MapTrainers setMap((Init.x)+1 Init.y)}
 	 {Move Init moveRight}
-	 if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end
+	 if (Init.type==persoPrincipal) then
+	    if (Grass==false) then {GrassCombat Init} end
+	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} end
+	 end
 	 {AdjoinAt Init x (Init.x)+1}
       else Init
       end
@@ -174,7 +188,10 @@ Wilds = Pokemoz.wilds
       if B then  {Send MapTrainers setMap((Init.x) Init.y)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1)}
 	 {Move Init moveUp}
-	 if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end
+	 if  (Init.type==persoPrincipal) then
+	    if (Grass==false) then {GrassCombat Init} end
+	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} end
+	 end
 	 {AdjoinAt Init y (Init.y)-1}
       else Init
       end

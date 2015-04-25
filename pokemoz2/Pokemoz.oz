@@ -194,7 +194,7 @@ end
       of sethp(X) then {SetHp State X} 
       [] setlx(X) then {SetLx State X} 
       [] setxp(X) then {SetXp State X}
-      [] addXp(X) then {SetXp State (State.xp + X)}
+      [] addXp(X) then {SetXp State X} % même fonction qu'au dessu avec un nom correct --> Set signifie écraser !!!!!! fait attention à tes nom stp j'ai chercher pdt 1h le bug ='(
       [] setHpMax() then {SetHpMax State}
       [] levelup then {LevelUp State}
       [] get(X) then X=State State
