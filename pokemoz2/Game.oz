@@ -93,22 +93,44 @@ define
 
 
 
-% Fonction qui modifie les coordonnee (X,Y) de la Map Init
-   fun {SetMap X Y Init}
-      if {Check X Y Init} then {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)+1}}
-      else {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)-1}}
-      end
+%( Fonction qui modifie les coordonnee (X,Y) de la Map Init ) = ancienne version .. maintenant le Set est un vrai set
+   fun {SetMap X Y Value MapState}
+      {AdjoinAt MapState Y {AdjoinAt MapState.Y X Value}}
+      %if {Check X Y MapState} then {AdjoinAt MapState Y {AdjoinAt MapState.Y X (MapState.Y.X)+1}}
+      %else {AdjoinAt MapState Y {AdjoinAt MapState.Y X (Init.Y.X)-1}}
+      % end
    end
 
-
+   proc {CheckFight NPerso X Y MapState}
+      if {Or (MapState.X.Y == 0) (NPerso==0)} then skip
+      else
+	 if (MapState.X.Y == 1000) then {Show xY} {Show NPerso} {CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.NPerso} end
+	 if (NPerso == 1000) then {Show nPerso} {Show (MapState.X.Y)} {CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.(MapState.X.Y)} end
+      end
+   end
+   proc {CheckCombat X Y MapState}
+      NPerso = MapState.X.Y in
+      if (Y > 1) then {CheckFight NPerso X Y-1 MapState}
+	 if (X > 1) then {CheckFight NPerso X-1 Y-1 MapState} end
+	 if (X < 7) then {CheckFight NPerso X+1 Y-1 MapState} end
+      end
+      if (Y < 7) then {CheckFight NPerso X Y+1 MapState}
+	 if (X > 1) then {CheckFight NPerso X-1 Y+1 MapState} end
+	 if (X < 7) then {CheckFight NPerso X+1 Y+1 MapState} end
+      end
+      if (X > 1) then {CheckFight NPerso X-1 Y MapState} end
+      if (X < 7) then {CheckFight NPerso X+1 Y MapState} end	    
+   end
+   
    
 %%%%%%%%%%%%% fonction mere Map %%%%%%%%%%%%%%%%%%
    fun {FMap Msg MapState}
       case Msg
-      of  setMap(X Y) then {SetMap X Y MapState}
+      of  setMap(X Y Value) then {SetMap X Y Value MapState}
       [] check(X Y B) then B={Check X Y MapState} MapState
       [] checkin(X Y B) then B={Checkin X Y MapState} MapState
       [] get(X) then X=MapState MapState
+      [] checkCombat(X Y) then {CheckCombat X Y MapState} MapState
       end
    end
 
@@ -118,13 +140,11 @@ define
 
 %%%%%%%%%%%%%%%%%%%%%% Gestion de combat %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% X doit être le portObject perso principal
+% X doit être l'état du portObject perso principal
 % Y doit être le portObject pokémoz sauvage
 %
 
-%TODO TEST DES DEUX FONCTIONS
-   proc{CombatWild StateX Y}
-   % La les variable doivent être 2 pokemoz
+      % La les variable doivent être 2 pokemoz
       proc{CombatRec X Y S Combat PortAttack}
 	 P1 P2 in
 	 case S of nil then skip
@@ -169,6 +189,9 @@ define
 	    end
 	 end
       end
+
+      % TODO check : StateX est l'état de X, Y est le portObject
+   proc{CombatWild StateX Y}
       PortAttack PortAttackList StateY Combat StatePokemozX StateCombat
    in
       {Send PausePortObject pause} 
@@ -188,54 +211,24 @@ define
    end
 
 %
-% X doit être le perso principal
-% Y doit être le perso adverse
+% X doit être l'état du perso principal
+% Y doit être le portObject du perso adverse
 %
-   proc{CombatPerso X Y}
-   % La les variable doivent être 2 pokemoz
-      proc{CombatRec X Y S Combat}
-	 P1 P2 in
-	 case S of nil then skip
-	 [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
-	    {Send X attack(Y Succeed1)}
-	    if (Succeed1==true) then {Send Y attackedBy(X StillAlife1)} else StillAlife1=true end
-	    if (StillAlife1==true) then {Send Y attack( X Succeed2)}
-	       if (Succeed2 == true) then {Send X attackedBy( Y StillAlife2)}
-		  if(StillAlife2 == false) then
-		     {Send Y gagneContre(X)} % Augmentation de niveau
-		     {Combat.attaqueImage delete}%suppression de l'image du perdant
-		     {Delay 1500}
-		     {Combat.windowCombat close}
-		  end
-	       else StillAlife2=true end
-	    else
-	       {Send X gagneContre(Y)} % Augmentation du niveau
-	       {Combat.attaquantImage delete}
-	       {Delay 1500}
-	       {Combat.windowCombat close}
-	    end
-	 % Remise à jour des valeurs
-	    {Send X getState(P1)}
-	    {Send Y getState(P2)}
-	    {SetCombatState Combat P1 P2}
-	    if ({And StillAlife1 StillAlife2}) then
-	       {CombatRec X Y Sr Combat}
-	    else
-	       {Browse combatFini}
-	    end
-	 end
-      end
-      PortAttack PortAttackList StateX StateY StateCombat1 StateCombat2 Combat
+   proc{CombatPerso StateX Y}
+      PortAttack PortAttackList StateY StatePokemozX StatePokemozY Combat
    in
+      {Send PausePortObject pause} % Stop the other player
       PortAttack={NewPort PortAttackList}
-      {Send X getState(StateX)}
       {Send Y getState(StateY)}
-      {Send StateX.p getState(StateCombat1)}
-      {Send StateY.p getState(StateCombat2)}
-      if ({And StateCombat1.hp>0 StateCombat2.hp>0}) then
-	 Combat = {StartCombat StateX StateY PortAttack PausePortObject }
-	 {SetCombatState Combat StateCombat1 StateCombat2} 
-	 thread {CombatRec StateX.p StateY.p PortAttackList Combat} end
+      if (FightAuto) then {Send PortAttack attack} end % start automatically the fight
+      % Obtain the state of the two pokemoz
+      {Send StateX.p getState(StatePokemozX)}
+      {Send StateY.p getState(StatePokemozY)}
+      if ({And StatePokemozX.hp>0 StatePokemozY.hp>0}) then
+	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
+	 {SetCombatState Combat StatePokemozX StatePokemozY}
+	 % We can't run away
+	 thread {CombatRec StateX.p StateY.p PortAttackList Combat PortAttack} end
       end
    end
 
@@ -302,15 +295,19 @@ in
    {Send Map get(XMap)}
    %Démarrage du jeux
    Game = {StartGame (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end) ((10-Speed)*Delai)}
-   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
+   {Show etape1}
 
-   PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal Game.canvasMap} }
-
+   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
+   PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
+   {Show etape2}
+   {Show etape3}
    %%%%% Fonction qui fait évoluer les pokémoz sauvages 
    thread {WildsXpAdd Wilds Delai*5} end
 
    RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3 3 Game.canvasMap}
-   thread {MoveOther RecordOtherPortObjectTrainers Delai Speed PausePortObject} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!!
 
+   %TODO Mettre les ref des objets dans les objets ....
+   thread {MoveOther RecordOtherPortObjectTrainers Delai Speed PausePortObject} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!!
+  % {CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.1} test :)
    
 end

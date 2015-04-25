@@ -250,6 +250,8 @@ define
    fun {AttackTrainer  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
+      PokemozPersoPrincipal % the same as attaque wich mean attacked (attaqué)
+      PokemozAttaquant
       ImageCanvasPersoPrincipal
       ImageCanvasPersoSauvage
       AttaquantImage
@@ -258,8 +260,11 @@ define
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
       {CanvasAttaquant create(image 550 150 image:PersoSauvageImageGrand handle:ImageCanvasPersoSauvage)}
       {Delay 3000} % Permet de laisser les perso 3 secondes
-      case Attaquant of  t(p:Z) then X in {Send Z getState(X)} PokemozAttaquantName = X.name end
-      case Attaque of t(p:Z) then X in {Send Z getState(X)} PokemozPersoPrincipalName=X.name end
+      PokemozAttaquant = Attaquant.p
+      PokemozPersoPrincipal = Attaque.p
+      PokemozAttaquantName = ({Send PokemozAttaquant getState($)}).name
+      PokemozPersoPrincipalName = ({Send PokemozPersoPrincipal getState($)}).name
+
       {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName} handle:AttaqueImage) }
       {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
       {ImageCanvasPersoPrincipal delete}
@@ -305,7 +310,10 @@ define
       if (FightAuto == false) then
 	 thread
 	    {Delay 3500}
-	    {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)  button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+	    if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))} % we can't run away
+	    else
+	       {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)  button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+	    end
 	 end
       end
       {Record.adjoin ToAddCombat combat(windowCombat:WindowCombat canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal labelWriteAction:LabelWriteAction) $}

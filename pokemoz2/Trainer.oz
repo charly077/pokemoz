@@ -32,6 +32,7 @@ define
    MapTrainers
    Map
    WindowMap
+   PortPersoPrincipal
    
    Names = names("Jean" "Sacha" "Ondine" "Pierre")
 
@@ -39,11 +40,12 @@ define
 %%%%%%%%%%%%%%%%%%%%%% Fonctions de base %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse}
+   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse PortPersoPrincipalToUse}
       GrassCombat = GrassCombatFunction
       MapTrainers = MapTrainersPortObject
       Map = MapPortObject
       WindowMap = WindowMapToUse
+      PortPersoPrincipal = PortPersoPrincipalToUse
    end
    
 
@@ -85,10 +87,10 @@ Wilds = Pokemoz.wilds
 
 %Creation d'un record trainer spécifique
 
-   fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
+   fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas N}
       local B in {Send MapTrainers check(X Y B)} %% attention eviter les dresseurs en bas à droit et en haut à droite
-	 if B then {Send MapTrainers setMap(X Y)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type)}
-	 else {CreateTrainer Name Pokemoz ({OS.rand} mod 7)+1 ({OS.rand} mod 7)+1 Speed Type Canvas}
+	 if B then {Send MapTrainers setMap(X Y N)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type n:N)}
+	 else {CreateTrainer Name Pokemoz ({OS.rand} mod 7)+1 ({OS.rand} mod 7)+1 Speed Type Canvas N}
 	 end
       end
    end
@@ -101,7 +103,7 @@ Wilds = Pokemoz.wilds
 	 X=({OS.rand} mod 7)+1
 	 Y=({OS.rand} mod 7)+1
 	 Type= wild
-	 {CreateTrainer Name Pokemoz X Y Speed Type Canvas}
+	 {CreateTrainer Name Pokemoz X Y Speed Type Canvas Number}
       end
    end
 
@@ -110,7 +112,7 @@ Wilds = Pokemoz.wilds
    fun{CreateOtherTrainer Number Speed Canvas}
       local R
 	 fun{CreateOtherTrainers Number Speed Trainers Canvas}
-	    if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Number  Speed Canvas}} Canvas}
+	    if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Speed Number Canvas}} Canvas}
 	    else Trainers
 	    end
 	 end
@@ -158,10 +160,11 @@ Wilds = Pokemoz.wilds
    fun {MoveLeft Init}
       B Grass TypePerso in {Send MapTrainers check((Init.x)-1 Init.y B)}
       {Send Map check((Init.x)-1 Init.y Grass)}
-      if B then  {Send MapTrainers setMap((Init.x) Init.y)}
-	 {Send MapTrainers setMap((Init.x)-1 Init.y)}
+      if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
+	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
 	 {Move Init moveLeft}
 	 if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end %% Ajouter la condition que c'est le preso principal
+	 {Send MapTrainers checkCombat(Init.x Init.y)}
 	 {AdjoinAt Init x (Init.x)-1}
       else Init
       end
@@ -169,13 +172,14 @@ Wilds = Pokemoz.wilds
 
    fun {MoveRight Init}
       B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
-      if B then {Send MapTrainers setMap((Init.x) Init.y)}
-	 {Send MapTrainers setMap((Init.x)+1 Init.y)}
+      if B then {Send MapTrainers setMap((Init.x) Init.y 0)}
+	 {Send MapTrainers setMap((Init.x)+1 Init.y Init.n)}
 	 {Move Init moveRight}
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
 	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} end
 	 end
+	 {Send MapTrainers checkCombat(Init.x Init.y)}
 	 {AdjoinAt Init x (Init.x)+1}
       else Init
       end
@@ -185,13 +189,14 @@ Wilds = Pokemoz.wilds
    fun {MoveUp Init}
       B Grass in
       {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)} 
-      if B then  {Send MapTrainers setMap((Init.x) Init.y)}
-	 {Send MapTrainers setMap((Init.x) (Init.y)-1)}
+      if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
+	 {Send MapTrainers setMap((Init.x) (Init.y)-1 Init.n)}
 	 {Move Init moveUp}
 	 if  (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
 	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} end
 	 end
+	 {Send MapTrainers checkCombat(Init.x Init.y)}
 	 {AdjoinAt Init y (Init.y)-1}
       else Init
       end
@@ -200,10 +205,11 @@ Wilds = Pokemoz.wilds
 
    fun {MoveDown Init}
       B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
-      if B then {Send MapTrainers setMap((Init.x) Init.y)}
-	 {Send MapTrainers setMap((Init.x) (Init.y)+1)}
+      if B then {Send MapTrainers setMap((Init.x) Init.y 0) }
+	 {Send MapTrainers setMap((Init.x) (Init.y)+1 Init.n)}
 	 {Move Init moveDown}
 	 if {And (Grass==false) (Init.type==persoPrincipal)} then  {GrassCombat Init} end
+	 {Send MapTrainers checkCombat(Init.x Init.y)}
 	 {AdjoinAt Init y (Init.y)+1}
       else Init
       end
