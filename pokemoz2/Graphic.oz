@@ -106,16 +106,12 @@ define
 	 end
       end
    in
-      {Show move}
-      {Show Movement}
       N=10
-      {Show DSpeed}
       TimeDelay = DSpeed div N
-      {Show divPoseProblem}
       NSpace = WidthBetween div N
       CanvasPerso = Perso.handle
       case Movement of nil then skip
-      []moveUp then {Show youhouuuuu} {MoveDelay 0 ~WidthBetween}
+      []moveUp then {MoveDelay 0 ~WidthBetween}
       []moveDown then {MoveDelay 0 WidthBetween}
       []moveLeft then {MoveDelay ~WidthBetween 0}
       []moveRight then {MoveDelay WidthBetween 0}
@@ -186,7 +182,6 @@ define
       elseif(Trainer.type == persoPrincipal) then Photo = PersoPrincipalImage
       else
 	 {Browse errorTypeNotRecognizedCreatePerso}
-	 {Browse Trainer}
 	 Photo = nil 
       end
       {Canvas create(image 50+(X-1)*WidthBetween 50+(Y-1)*WidthBetween image:Photo handle:Handle)}

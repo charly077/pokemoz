@@ -19,13 +19,9 @@ export
 define
    Browse = Browser.browse
    Show = System.show
-   {Show 1}
    StartGame = Graphic.startGame
-   {Show 1}
    FPokemoz = Pokemoz.fPokemoz
-   {Show 1}
    CreatePokemoz5 = Pokemoz.createPokemoz5
-   {Show 2}
    SetCombatState = Graphic.setCombatState
    Choose = Graphic.choose
    StartCombat = Graphic.startCombat
@@ -34,8 +30,6 @@ define
    InitTrainerFunctor = Trainer.initTrainerFunctor
    CreateOtherPortObjectTrainers = Trainer.createOtherPortObjectTrainers
    MoveOther = Trainer.moveOther
-      {Show 3}
-{Show 2}
    Proba=50
    
 % Port object abstraction
@@ -87,7 +81,7 @@ define
    end
 
 
-{Show 3}
+
 % Fonction qui modifie les coordonnee (X,Y) de la Map Init
    fun {SetMap X Y Init}
       if {Check X Y Init} then {AdjoinAt Init Y {AdjoinAt Init.Y X (Init.Y.X)+1}}
@@ -145,7 +139,6 @@ define
       P S StateY Combat StatePokemozX StateCombat
    in
       P={NewPort S}
-      {Browse newPort}
       if ({Send Y getHp($)}<1) then {Send  Y setHpMax} end
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
@@ -203,7 +196,7 @@ define
 	 thread {CombatRec StateX.p StateY.p S Combat} end
       end
    end
-{Show 4}
+
 
 
    proc {GrassCombat PersoState}
@@ -217,8 +210,6 @@ define
       if (Rand =< Proba-1) then
       % Choix d'un pokémoz Aléatoire
 	 RandomPokemoz = ({OS.rand $} mod ({Record.width Wilds}))+1
-	 {Browse grassCombat}
-	 {Browse PersoState}
 	 {CombatWild PersoState (Wilds.RandomPokemoz)}
       end
    end
@@ -238,7 +229,6 @@ define
 	    Rand = {OS.rand} mod 1000
 	    if (Rand < 100 ) then
 	       {Browse "Remise d'xp à"}
-	       {Browse {Send Wilds.N getState($)}}
 	       {Send Width.N addXp(1)}
 	       {Send Width.N levelup}
 	    end
@@ -264,14 +254,11 @@ in
    Speed = 4
    MapTrainers={NewPortObject FMap {CreateEmptyMap}}
    Map={NewPortObject FMap {CreateMap}}
-   {Show befiremap}
    %Création de la map
    {Send Map get(XMap)}
-   {Show map}
    %Démarrage du jeux
    CanvasMap = {StartGame (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end) ((10-Speed)*Delai)}
-   {InitTrainerFunctor GrassCombat MapTrainers Map} % Moyen de contrer un bug --'
-   {Show canvas}
+   {InitTrainerFunctor GrassCombat MapTrainers Map} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
 
    PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal CanvasMap} }
    {Send PortPersoPrincipal moveUp}

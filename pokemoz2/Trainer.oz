@@ -23,18 +23,14 @@ export
 define
    Show = System.show
    Browse = Browser.browse
-   {Show qqchose}
    CreatePerso = Graphic.createPerso
    FPokemoz = Pokemoz.fPokemoz
    CreatePokemoz5 = Pokemoz.createPokemoz5
    Pokemozs = Pokemoz.pokemozs
    Move = Graphic.move
-   {Show leBugEstLa}
    GrassCombat
-   {Show iciAussi}
    MapTrainers
    Map
-   {Show ouPas}
    
    Names = names("Jean" "Sacha" "Ondine" "Pierre")
    Proba = 50
@@ -82,7 +78,6 @@ define
 %
 %
 %
-   {Show qqchose1}
 %%%%%%%%%%%%%%%%% Fonctions de créations de Trainers %%%%%%%%%%%%%%%%
 
 Wilds = Pokemoz.wilds
@@ -97,7 +92,6 @@ Wilds = Pokemoz.wilds
       end
    end
 
-   {Show qqchose2}
 % Création d'un record trainer sauvage aleatoire
    fun {CreateRandTrainer  Speed Number Canvas}
       local Name X Y Pokemoz Type in
@@ -125,7 +119,6 @@ Wilds = Pokemoz.wilds
    end
 
 
-   {Show qqchose3}
 
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
 
@@ -177,8 +170,7 @@ Wilds = Pokemoz.wilds
 
    fun {MoveUp Init}
       B Grass in
-      {Show Init}
-      {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)} {Show errrorHere}
+      {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)} 
       if B then  {Send MapTrainers setMap((Init.x) Init.y)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1)}
 	 {Move Init moveUp}
@@ -201,7 +193,6 @@ Wilds = Pokemoz.wilds
    end
 
 %%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
-   {Show qqchose5}
 
    fun {SetAuto Init}
       if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
@@ -217,7 +208,7 @@ Wilds = Pokemoz.wilds
       of moveLeft then {MoveLeft Init} 
       [] moveRight then {MoveRight Init} 
       [] moveDown then {MoveDown Init} 
-      [] moveUp then {Show Init} {Show MapTrainers} {MoveUp Init}
+      [] moveUp then {MoveUp Init}
       [] setauto then {SetAuto Init}
       [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
       [] getPortObject(R) then R = Init.portObject Init
@@ -228,12 +219,10 @@ Wilds = Pokemoz.wilds
 
    fun {CreateOtherPortObjectTrainers Number Speed Canvas}
       Trainers = {CreateOtherTrainer Number Speed Canvas}
-      {Browse Trainers}
       %% fonction pour permettre de créer des portObject des trainers
       fun {Recurs NumberLeft Trainers}
 	 if (NumberLeft == 0 ) then trainers()
 	 else
-	    {Browse NumberLeft}
 	    {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}
 	 
 	 end

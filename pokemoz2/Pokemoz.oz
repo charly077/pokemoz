@@ -57,7 +57,6 @@ end
       p(type:Type name:Name hp:Hp lx:Lx xp:0)
    end
 
-   {Show coucou1}
    fun{CreatePokemoz5 Name}
       Type in
       case Name of "Bulbasoz" then Type=grass
@@ -69,7 +68,6 @@ end
 
    Wilds = pokemozs({NewPortObject FPokemoz {CreatePokemoz5 "Bulbasoz"}} {NewPortObject FPokemoz {CreatePokemoz5 "Oztirtle"}} {NewPortObject FPokemoz {CreatePokemoz5 "Charmandoz"}})
 
-   {Show coucou2}
    fun{CreateRandPokemoz}
       Type Name Hp Lx in
       Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
@@ -105,10 +103,6 @@ end
       Hp=20 +2*(Lx-5)
       p(type:Type name:Name hp:Hp lx:Lx xp:0)
    end
-
-
-
-   {Show coucou3}
 	       
 
 
@@ -151,7 +145,6 @@ end
       end
    end
 
-  {Show coucou4} 
    fun {AttackBy Y Init} Attaquant in {Send Y get(Attaquant)}
       case Init.type
       of fire then case Attaquant.type
@@ -214,6 +207,5 @@ end
       end
    end
 
-   {Show coucouEnd}
 
 end
