@@ -1,0 +1,16 @@
+-> Faire la maison
+-> faire l'arreine
+-> faire des mutex ou décalage dans le tps pour la MapTrainer
+-> faire la terminaison
+-> Implémenter les combats avec les autres dresseurs
+-> Automatiser les combats !!!
+-> Faire l'intelligence artificielle
+	-> figth tjs
+	-> fight jms
+	-> fight intelligent
+	-> Deplacement
+		--> si full life ---> aléatoire
+		--> si half life ---> éviter perso, éviter herbe, terminer
+		--> si null life ---> aller tout en haut à gauche
+-> remettre le code au propre
+-> supprimer les warnings
