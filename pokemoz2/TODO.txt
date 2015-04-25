@@ -3,6 +3,7 @@
 -> faire des mutex ou décalage dans le tps pour la MapTrainer
 -> faire la terminaison
 -> Implémenter les combats avec les autres dresseurs
+-> Automatiser les combats !!!
 -> Faire l'intelligence artificielle
 	-> figth tjs
 	-> fight jms
