@@ -97,13 +97,18 @@ Wilds = Pokemoz.wilds
 
 % Création d'un record trainer sauvage aleatoire
    fun {CreateRandTrainer  Speed Number Canvas}
-      local Name X Y Pokemoz Type in
+      local Name X Y Pokemoz Type X1 Y1 in
 	 Name = Names.Number
 	 Pokemoz = {NewPortObject FPokemoz {CreatePokemoz5 Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)}} 
-	 X=({OS.rand} mod 7)+1
-	 Y=({OS.rand} mod 7)+1
+	 X=({OS.rand} mod 6)+1 
+	 Y=({OS.rand} mod 6)+1
+	 if ({And X==6 Y==6}) then X1=5 Y1=5
+	 else
+	    X1 = X
+	    Y1 = Y
+	 end
 	 Type= wild
-	 {CreateTrainer Name Pokemoz X Y Speed Type Canvas Number}
+	 {CreateTrainer Name Pokemoz X1 Y1 Speed Type Canvas Number}
       end
    end
 
@@ -164,7 +169,7 @@ Wilds = Pokemoz.wilds
 	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
 	 {Move Init moveLeft}
 	 if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end %% Ajouter la condition que c'est le preso principal
-	 {Send MapTrainers checkCombat(Init.x Init.y)}
+	 {Send MapTrainers checkCombat((Init.x)-1 Init.y)}
 	 {AdjoinAt Init x (Init.x)-1}
       else Init
       end
@@ -179,7 +184,7 @@ Wilds = Pokemoz.wilds
 	    if (Grass==false) then {GrassCombat Init} end
 	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} end
 	 end
-	 {Send MapTrainers checkCombat(Init.x Init.y)}
+	 {Send MapTrainers checkCombat((Init.x)+1 Init.y)}
 	 {AdjoinAt Init x (Init.x)+1}
       else Init
       end
@@ -196,7 +201,7 @@ Wilds = Pokemoz.wilds
 	    if (Grass==false) then {GrassCombat Init} end
 	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} end
 	 end
-	 {Send MapTrainers checkCombat(Init.x Init.y)}
+	 {Send MapTrainers checkCombat(Init.x (Init.y)-1)}
 	 {AdjoinAt Init y (Init.y)-1}
       else Init
       end
@@ -209,7 +214,7 @@ Wilds = Pokemoz.wilds
 	 {Send MapTrainers setMap((Init.x) (Init.y)+1 Init.n)}
 	 {Move Init moveDown}
 	 if {And (Grass==false) (Init.type==persoPrincipal)} then  {GrassCombat Init} end
-	 {Send MapTrainers checkCombat(Init.x Init.y)}
+	 {Send MapTrainers checkCombat((Init.x) (Init.y)+1)}
 	 {AdjoinAt Init y (Init.y)+1}
       else Init
       end

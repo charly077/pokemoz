@@ -1,19 +1,22 @@
+CHEMIN = /Applications/Mozart2.app/Contents/Resources/bin/
+
+
 all : Graphic.ozf Pokemoz.ozf Trainer.ozf Game.ozf
 
-exec : all 
-	/Applications/Mozart2.app/Contents/Resources/bin/ozengine  Game.ozf
+exemple : all 
+	$(CHEMIN)ozengine Game.ozf --mapFile 'map.txt' --probability 35 --speed 4 --autofight true --auto true
 
 Graphic.ozf : Graphic.oz
-	/Applications/Mozart2.app/Contents/Resources/bin/ozc -c Graphic.oz
+	$(CHEMIN)ozc -c Graphic.oz
 
 Pokemoz.ozf : Pokemoz.oz
-	/Applications/Mozart2.app/Contents/Resources/bin/ozc -c Pokemoz.oz
+	$(CHEMIN)ozc -c Pokemoz.oz
 
 Trainer.ozf : Trainer.oz
-	/Applications/Mozart2.app/Contents/Resources/bin/ozc -c Trainer.oz
+	$(CHEMIN)ozc -c Trainer.oz
 	
 Game.ozf : Game.oz
-	/Applications/Mozart2.app/Contents/Resources/bin/ozc -c Game.oz
+	$(CHEMIN)ozc -c Game.oz
 
 clear : 
 	rm *.ozf

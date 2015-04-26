@@ -141,14 +141,14 @@ define
    %
    %Post : Renvoie le Canvas de la Map, il est utilile pour d'autres
    %       Fonctions
-   fun {StartGame MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal DSpeedToApply }
+   fun {StartGame MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal DSpeedToApply MapFile MoveAuto}
       CanvasMap
       WindowMap
       Desc
    in
       {Show startGame}
       DSpeed=DSpeedToApply
-      {Pickle.load 'map.txt' Map} % pick the map
+      {Pickle.load MapFile Map} % pick the map
       Desc = td(title:"Pokemoz, the beginning of the end :) "
 		canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100)
 		button(text:"Close" action:toplevel#close width:10))
@@ -160,10 +160,12 @@ define
       {WindowMap show}
 
    % Affectation des touches au mouvement du personnage principal
-      {WindowMap bind(event:"<Up>" action:MoveUpPrincipal)}
-      {WindowMap bind(event:"<Left>" action:MoveLeftPrincipal)}
-      {WindowMap bind(event:"<Down>" action:MoveDownPrincipal)}
-      {WindowMap bind(event:"<Right>" action:MoveRightPrincipal)}
+      if (MoveAuto == false) then 
+	 {WindowMap bind(event:"<Up>" action:MoveUpPrincipal)}
+	 {WindowMap bind(event:"<Left>" action:MoveLeftPrincipal)}
+	 {WindowMap bind(event:"<Down>" action:MoveDownPrincipal)}
+	 {WindowMap bind(event:"<Right>" action:MoveRightPrincipal)}
+      end
       game(canvasMap:CanvasMap windowMap:WindowMap)
    end
 
