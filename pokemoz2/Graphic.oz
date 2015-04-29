@@ -230,15 +230,25 @@ define
    fun {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
+      PokemozAttaquantType
+      PokemozPersoPrincipalType
       ImageCanvasPersoPrincipal
       AttaquantImage
       AttaqueImage
       X
    in
       PokemozAttaquantName = Attaquant.name
+      PokemozAttaquantType = Attaquant.type
       {Send Attaque.p getState(X)}
       PokemozPersoPrincipalName = X.name 
+      PokemozPersoPrincipalType = X.type
+
       % On peut mettre directement le pokemoz
+      %TODO Faire les colors
+	%case PokemozAttaquantType of grass then 
+
+      %{CanvasAttaquant set(bg:ColorAttaquant)}
+      %{CanvansPersoPrincipal set(bg:ColorAttaque)}	
       {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
       % Mettre l'image du dresseur pendant une seconde
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
@@ -266,6 +276,10 @@ define
       PokemozPersoPrincipal = Attaque.p
       PokemozAttaquantName = ({Send PokemozAttaquant getState($)}).name
       PokemozPersoPrincipalName = ({Send PokemozPersoPrincipal getState($)}).name
+
+      %TODO Faire les colors en fonction des names ou des states
+      %{CanvasAttaquant set(bg:ColorAttaquant)}
+      %{CanvansPersoPrincipal set(bg:ColorAttaque)}
 
       {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName} handle:AttaqueImage) }
       {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
