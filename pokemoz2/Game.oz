@@ -30,7 +30,7 @@ define
    InitTrainerFunctor = Trainer.initTrainerFunctor
    CreateOtherPortObjectTrainers = Trainer.createOtherPortObjectTrainers
    MoveOther = Trainer.moveOther
-   FightAuto=true % true or false TODO
+   FightAuto=true % true or false
    Fight
    PersoPrincipalAuto
    Delai=200

@@ -1,10 +1,10 @@
+CHEMIN2 = /Applications/Mozart2.app/Contents/Resources/bin/ 
 CHEMIN = /Applications/Mozart2.app/Contents/Resources/bin/
-
 
 all : Graphic.ozf Pokemoz.ozf Trainer.ozf Game.ozf
 
 exemple : all 
-	$(CHEMIN)ozengine Game.ozf --mapFile 'map.txt' --probability 35 --speed 4 --autofight true --auto true
+	$(CHEMIN)ozengine Game.ozf --mapFile 'map2.txt' --probability 35 --speed 4 --autofight true --auto true
 
 Graphic.ozf : Graphic.oz
 	$(CHEMIN)ozc -c Graphic.oz

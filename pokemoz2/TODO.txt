@@ -1,5 +1,5 @@
 -> animation pour les attaques !!!
--> Attention Speed de game doit
+-> Attention Speed de game doit (retirer des record trainer)
 -> Faire l'intelligence artificielle
 	-> figth tjs
 	-> fight jms
@@ -10,3 +10,5 @@
 		--> si null life ---> aller tout en haut à gauche
 -> remettre le code au propre
 -> supprimer les warnings
+-> couleur pokemoz en fct du type
+-> purifier le code
