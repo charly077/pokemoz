@@ -1,6 +1,6 @@
 PRIORITAIRE
 -> Faire l'intelligence artificielle
-
+-> Se mettre d’accord sur les parametres autofight !!!!!!!!
 BUG :
 ->Gestion combat multiple …
 ->combatwild en mode manuel 
