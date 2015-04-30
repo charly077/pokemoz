@@ -30,15 +30,14 @@ define
    InitTrainerFunctor = Trainer.initTrainerFunctor
    CreateOtherPortObjectTrainers = Trainer.createOtherPortObjectTrainers
    MoveOther = Trainer.moveOther
-   FightAuto=true % true or false %ne doit pas être un argument ???
-   Fight
+   FightAuto %C'est un atom argument:)
    PersoPrincipalAuto
    Delai=200
    
    % Gestion des arguments
    Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:bool default:true) auto(single type:bool default:true))}
-   if (Args.autofight == true) then Fight = fight % can be fight or runAway TODO
-   else Fight = runAway end
+   if (Args.autofight == true) then FightAuto = fight % can be fight or runAway TODO
+   else FightAuto = runAway end
    MapFile = Args.mapFile % have to be the name of the file
    Proba = Args.probability mod 101 % must be less than 100
    Speed = Args.speed mod 11 % must be less than 10
@@ -139,16 +138,10 @@ define
    end
    proc {CheckCombat X Y MapState} % considère aussi les diagonales ....
       NPerso = MapState.Y.X in
-      if (Y > 1) then {CheckFight NPerso X Y-1 MapState}
-	 if (X > 1) then {CheckFight NPerso X-1 Y-1 MapState} end
-	 if (X < 7) then {CheckFight NPerso X+1 Y-1 MapState} end
-      end
-      if (Y < 7) then {CheckFight NPerso X Y+1 MapState}
-	 if (X > 1) then {CheckFight NPerso X-1 Y+1 MapState} end
-	 if (X < 7) then {CheckFight NPerso X+1 Y+1 MapState} end
-      end
       if (X > 1) then {CheckFight NPerso X-1 Y MapState} end
-      if (X < 7) then {CheckFight NPerso X+1 Y MapState} end	    
+      if (X < 7) then {CheckFight NPerso X+1 Y MapState} end
+      if (Y > 1) then {CheckFight NPerso X Y-1 MapState} end
+      if (Y < 7) then {CheckFight NPerso X Y+1 MapState} end
    end
    
    
@@ -209,7 +202,7 @@ define
 	    {SetCombatState Combat P1 P2}
 	    if ({And StillAlife1 StillAlife2}) then
 	       %Si le combat est automatique il faut lui permettre de continuer
-	       if (FightAuto) then {Send PortAttack attack} end
+	       if (FightAuto==fight) then {Send PortAttack attack} end
 	       {CombatRec X Y Sr Combat PortAttack MsgAttack MsgBeAttacked}
 	    else
 	       {Delay D}
@@ -228,14 +221,14 @@ define
       X = {WaitCombat}
       %{Show deblockedWild}
       PortAttack={NewPort PortAttackList}
-      if (FightAuto) then {Send PortAttack attack} end % Permettre de démarrer le combat automatiquement si autoFight est déclenché
+      if (FightAuto==fight) then {Send PortAttack attack} end % Permettre de démarrer le combat automatiquement si autoFight est déclenché
       if ({Send Y getHp($)}<1) then {Send  Y setHpMax} end
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
       if ({And StatePokemozX.hp>0 StateY.hp>0}) then
 	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
 	 {SetCombatState Combat StatePokemozX StateY}
-	 if (Fight == runAway) then {Combat.windowCombat close}
+	 if (FightAuto == runAway) then {Combat.windowCombat close}
 	 else
 	    thread {CombatRec StateX.p Y PortAttackList Combat PortAttack "We have successfully attacked the wild pokemoz" "The wild pokemoz has successfully attacked your pokemoz" } end
 	 end 
@@ -256,7 +249,7 @@ define
       %{Show deblockedPerso}
       PortAttack={NewPort PortAttackList}
       {Send Y getState(StateY)}
-      if (FightAuto) then {Send PortAttack attack} end % start automatically the fight
+      if (FightAuto==fight) then {Send PortAttack attack} end % start automatically the fight
       % Obtain the state of the two pokemoz
       {Send StateX.p getState(StatePokemozX)}
       {Send StateY.p getState(StatePokemozY)}

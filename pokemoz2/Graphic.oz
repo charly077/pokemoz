@@ -354,7 +354,7 @@ define
       else
 	 {Show "error StartCombat"}
       end
-      if (FightAuto == false) then
+      if (FightAuto == runAway) then
 	 thread
 	    {Delay 3500}
 	    if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))} % we can't run away
