@@ -4,7 +4,7 @@ OZC = $(shell locate /bin/ozc)
 all : Graphic.ozf Pokemoz.ozf Trainer.ozf Game.ozf
 
 exemple : all 
-	$(OZENGINE) Game.ozf --mapFile 'map.txt' --probability 35 --speed 4 --autofight  --auto 
+	$(OZENGINE) Game.ozf --mapFile 'map.txt' --probability 35 --speed 4 --autofight fight  --auto 
 
 Graphic.ozf : Graphic.oz
 	$(OZC) -c Graphic.oz

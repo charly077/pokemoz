@@ -8,6 +8,8 @@ BUG :
 
 
 A Ameliorer
+->close la map correctement si on appuie sur close
+-> Succes fuite avec une probabilité
 -> Attention Speed de game doit (retirer des record trainer)
 -> remettre le code au propre
 -> supprimer les warnings

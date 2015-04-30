@@ -345,6 +345,7 @@ define
 	 {Send PausePortObject continue}
       end
    in
+      {Browse 'coucou1'}
       WindowCombat = {QTk.build Combat}
       {WindowCombat show(modal:true)}
       {Send AttaquantPort getState(Attaquant)}
@@ -354,14 +355,16 @@ define
       else
 	 {Show "error StartCombat"}
       end
-      if (FightAuto == runAway) then
-	 thread
-	    {Delay 3500}
-	    if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))} % we can't run away
-	    else
-	       {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)  button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+      if (FightAuto == you) then
+	  thread
+	     {Delay 3500}
+	     {Browse 'coucou'}
+	     
+	     if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10) button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+	     else
+	        {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))}  % we can't run away
 	    end
-	 end
+	  end
       end
       {Record.adjoin ToAddCombat combat(windowCombat:WindowCombat canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal labelWriteAction:LabelWriteAction) $}
    end

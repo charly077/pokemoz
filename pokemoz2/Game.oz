@@ -35,13 +35,15 @@ define
    Delai=200
    
    % Gestion des arguments
-   Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:bool default:true) auto(single type:bool default:true))}
-   if (Args.autofight == true) then FightAuto = fight % can be fight or runAway TODO
-   else FightAuto = runAway end
+   Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:atom default:fight) auto(single type:bool default:true))}
+   % if (Args.autofight == true) then FightAuto = fight % can be fight or runAway TODO
+   % else FightAuto = runAway end
+   FightAuto = Args.autofight
    MapFile = Args.mapFile % have to be the name of the file
    Proba = Args.probability mod 101 % must be less than 100
    Speed = Args.speed mod 11 % must be less than 10
    PersoPrincipalAuto = Args.auto % On utilise l'intelligence artificielle par défaut
+   {Browse FightAuto}
    
 % Port object abstraction
 % Init = initial state
@@ -217,11 +219,12 @@ define
    proc{CombatWild StateX Y}
       PortAttack PortAttackList StateY Combat StatePokemozX StateCombat X
    in
-      %{Show blockedWild}
+      {Show blockedWild}
       X = {WaitCombat}
-      %{Show deblockedWild}
+      {Show deblockedWild}
       PortAttack={NewPort PortAttackList}
       if (FightAuto==fight) then {Send PortAttack attack} end % Permettre de démarrer le combat automatiquement si autoFight est déclenché
+      
       if ({Send Y getHp($)}<1) then {Send  Y setHpMax} end
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
@@ -244,13 +247,15 @@ define
    proc{CombatPerso StateX Y}
       PortAttack PortAttackList StateY StatePokemozX StatePokemozY Combat X
    in
-      %{Show blockedPerso}
+      {Show blockedPerso}
       X = {WaitCombat}
-      %{Show deblockedPerso}
+      {Show deblockedPerso}
       PortAttack={NewPort PortAttackList}
       {Send Y getState(StateY)}
       if (FightAuto==fight) then {Send PortAttack attack} end % start automatically the fight
-      % Obtain the state of the two pokemoz
+      if (FightAuto==runAway) then {Send PortAttack attack} end
+       % Obtain the state of the two pokemoz
+       %if (FightAuto==you) then {Send PortAttack attack} end
       {Send StateX.p getState(StatePokemozX)}
       {Send StateY.p getState(StatePokemozY)}
       if ({And StatePokemozX.hp>0 StatePokemozY.hp>0}) then

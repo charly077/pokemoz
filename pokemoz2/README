@@ -6,6 +6,9 @@
 	-> mapFile is by default map.txt
 	-> probability is the probability of fighting a wild pokemon on a grass cell
 	-> speed is the game speed 
-	-> autofight is set if we automatically fight or noautofight is set if we automatically run away when it's possible ...
+	-> autofight can take 3 options
+ 			fight where we fight automatically 
+			runaway where we run all the time 
+			you where you are master of your choice
 	-> if auto is set then all perso move intelligently
 	   if noauto is set we can move the perso by ourselves
