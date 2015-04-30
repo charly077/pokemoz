@@ -1,11 +1,11 @@
 1) Change the path for ozc and ozengin wich is in the "makefile" and is named as "CHEMIN"
 2) Compile the project tanks to the shell command : make
 3) To have an exemple of the project you can also use the shell command : make exemple
-4) Else you have to have the shell command : ozengine Game.ozf --mapFile 'name_of_the_file_for_pickle.txt' --probability number_between_0_and_100 --speed number_between_0_and_10 --autofight true_or_false --auto true_or_false
+4) Else you have to have the shell command : ozengine Game.ozf --mapFile 'name_of_the_file_for_pickle.txt' --probability number_between_0_and_100 --speed number_between_0_and_10 --(no)autofight  --(no)auto 
 
 	-> mapFile is by default map.txt
 	-> probability is the probability of fighting a wild pokemon on a grass cell
 	-> speed is the game speed 
-	-> autofight is true if we automatically fight or false if we automatically run away when it's possible ...
-	-> if auto is true then all perso move intelligently
-	   if auto is false we can move the perso by ourselves
+	-> autofight is set if we automatically fight or noautofight is set if we automatically run away when it's possible ...
+	-> if auto is set then all perso move intelligently
+	   if noauto is set we can move the perso by ourselves
