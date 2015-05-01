@@ -30,19 +30,20 @@ define
    InitTrainerFunctor = Trainer.initTrainerFunctor
    CreateOtherPortObjectTrainers = Trainer.createOtherPortObjectTrainers
    MoveOther = Trainer.moveOther
-   FightAuto=true % true or false TODO
-   Fight
+   FightAuto %C'est un atom argument:)
    PersoPrincipalAuto
    Delai=200
    
    % Gestion des arguments
-   Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:bool default:true) auto(single type:bool default:true))}
-   if (Args.autofight == true) then Fight = fight % can be fight or runAway TODO
-   else Fight = runAway end
+   Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:atom default:fight) auto(single type:bool default:true))}
+   % if (Args.autofight == true) then FightAuto = fight % can be fight or runAway TODO
+   % else FightAuto = runAway end
+   FightAuto = Args.autofight
    MapFile = Args.mapFile % have to be the name of the file
    Proba = Args.probability mod 101 % must be less than 100
    Speed = Args.speed mod 11 % must be less than 10
    PersoPrincipalAuto = Args.auto % On utilise l'intelligence artificielle par défaut
+   {Browse FightAuto}
    
 % Port object abstraction
 % Init = initial state
@@ -63,7 +64,7 @@ define
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Function to Pause during Combat %%%%%%%%%%%%%%%
    fun {Pause Msg State}
       case Msg of pause then 1
-      [] continue then 0
+       [] continue then 0
       [] getState(X) then X=State State
       end
    end
@@ -126,9 +127,6 @@ define
 %( Fonction qui modifie les coordonnee (X,Y) de la Map Init ) = ancienne version .. maintenant le Set est un vrai set
    fun {SetMap X Y Value MapState}
       {AdjoinAt MapState Y {AdjoinAt MapState.Y X Value}}
-      %if {Check X Y MapState} then {AdjoinAt MapState Y {AdjoinAt MapState.Y X (MapState.Y.X)+1}}
-      %else {AdjoinAt MapState Y {AdjoinAt MapState.Y X (Init.Y.X)-1}}
-      % end
    end
 
    proc {CheckFight NPerso X Y MapState}
@@ -140,18 +138,12 @@ define
 	 end
       end
    end
-   proc {CheckCombat X Y MapState}
+   proc {CheckCombat X Y MapState} % considère aussi les diagonales ....
       NPerso = MapState.Y.X in
-      if (Y > 1) then {CheckFight NPerso X Y-1 MapState}
-	 if (X > 1) then {CheckFight NPerso X-1 Y-1 MapState} end
-	 if (X < 7) then {CheckFight NPerso X+1 Y-1 MapState} end
-      end
-      if (Y < 7) then {CheckFight NPerso X Y+1 MapState}
-	 if (X > 1) then {CheckFight NPerso X-1 Y+1 MapState} end
-	 if (X < 7) then {CheckFight NPerso X+1 Y+1 MapState} end
-      end
       if (X > 1) then {CheckFight NPerso X-1 Y MapState} end
-      if (X < 7) then {CheckFight NPerso X+1 Y MapState} end	    
+      if (X < 7) then {CheckFight NPerso X+1 Y MapState} end
+      if (Y > 1) then {CheckFight NPerso X Y-1 MapState} end
+      if (Y < 7) then {CheckFight NPerso X Y+1 MapState} end
    end
    
    
@@ -178,21 +170,21 @@ define
 
       % La les variable doivent être 2 pokemoz
       proc{CombatRec X Y S Combat PortAttack MsgAttack MsgBeAttacked}
-	 P1 P2 in
+	 P1 P2  D = 1000 in
 	 case S of nil then skip
 	 [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
 	    {Send X attack(Y Succeed1)}
 	    if (Succeed1==true) then
 	       {Combat.labelWriteAction set(MsgAttack)}
-	       {Delay 2000}
+	       {Delay D}
 	       {Combat.labelWriteAction set("")}
 	       {Send Y attackedBy(X)} {Send Y stillAlife(StillAlife1)}
-	    else StillAlife1=true end
+	    else {Combat.labelWriteAction set("Miss your attack")} {Delay D} StillAlife1=true end
 	    
 	    if (StillAlife1==true) then
 	       {Send Y attack(X Succeed2)}
 	       {Combat.labelWriteAction set(MsgBeAttacked)}
-	       {Delay 2000}
+	       {Delay D}
 	       {Combat.labelWriteAction set("")}
 	       if (Succeed2 == true) then {Send X attackedBy(Y)} {Send X stillAlife(StillAlife2)}
 		  if(StillAlife2 == false) then
@@ -200,7 +192,7 @@ define
 		     {Combat.attaqueImage delete}%suppression de l'image du perdant
 		     {Combat.labelWriteAction set("You Lose")}
 		  end
-	       else StillAlife2=true end
+	       else {Combat.labelWriteAction set("Miss his attack")} {Delay D} StillAlife2=true end
 	    else
 	       {Send X gagneContre(Y)}
 	       {Combat.attaquantImage delete}
@@ -212,17 +204,18 @@ define
 	    {SetCombatState Combat P1 P2}
 	    if ({And StillAlife1 StillAlife2}) then
 	       %Si le combat est automatique il faut lui permettre de continuer
-	       if (FightAuto) then {Send PortAttack attack} end
+	       if (FightAuto==fight) then {Send PortAttack attack} end
 	       {CombatRec X Y Sr Combat PortAttack MsgAttack MsgBeAttacked}
 	    else
-	       {Delay 2000}
+	       {Delay D}
 	       {Combat.windowCombat close}
 	       {EndCombat}
 	    end
 	 end
       end
 
-      % TODO check : StateX est l'état de X, Y est le portObject
+      % StateX est l'état de X, Y est le portObject
+      % dresseur pokemoz
    proc{CombatWild StateX Y}
       PortAttack PortAttackList StateY Combat StatePokemozX StateCombat X
    in
@@ -230,17 +223,18 @@ define
       X = {WaitCombat}
       {Show deblockedWild}
       PortAttack={NewPort PortAttackList}
-      if (FightAuto) then {Send PortAttack attack} end % Permettre de démarrer le combat automatiquement si autoFight est déclenché
+      if (FightAuto==fight) then {Send PortAttack attack} end % Permettre de démarrer le combat automatiquement si autoFight est déclenché
+      
       if ({Send Y getHp($)}<1) then {Send  Y setHpMax} end
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
       if ({And StatePokemozX.hp>0 StateY.hp>0}) then
 	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
 	 {SetCombatState Combat StatePokemozX StateY}
-	 if (Fight == runAway) then {Combat.windowCombat close}
+	 if (FightAuto == runAway) then {Combat.windowCombat close}
 	 else
 	    thread {CombatRec StateX.p Y PortAttackList Combat PortAttack "We have successfully attacked the wild pokemoz" "The wild pokemoz has successfully attacked your pokemoz" } end
-	 end
+	 end 
       else
 	 {EndCombat}
       end
@@ -258,8 +252,10 @@ define
       {Show deblockedPerso}
       PortAttack={NewPort PortAttackList}
       {Send Y getState(StateY)}
-      if (FightAuto) then {Send PortAttack attack} end % start automatically the fight
-      % Obtain the state of the two pokemoz
+      if (FightAuto==fight) then {Send PortAttack attack} end % start automatically the fight
+      if (FightAuto==runAway) then {Send PortAttack attack} end
+       % Obtain the state of the two pokemoz
+       %if (FightAuto==you) then {Send PortAttack attack} end
       {Send StateX.p getState(StatePokemozX)}
       {Send StateY.p getState(StatePokemozY)}
       if ({And StatePokemozX.hp>0 StatePokemozY.hp>0}) then
@@ -269,7 +265,7 @@ define
 	 thread {CombatRec StateX.p StateY.p PortAttackList Combat PortAttack "We have successfully attacked the wild trainer's pokemoz" "The wild trainer's pokemoz has successfully attacked your pokemoz"} end
       else     
 	 {EndCombat}
-	 {Send PausePortObject continue}
+	 {Send PausePortObject continue} % pq pas idem pour CombatWild ?
       end
    end
 
@@ -330,25 +326,51 @@ define
       {Delay ((10-Speed)*Delai)}
       {Send PortPersoPrincipal getState(State)}
       {Send State.p getState(StatePokemoz)}
-      if (StatePokemoz.hp < 1 ) then
-	 %technique assez barbare mais fonctionnelle
+      if {Or (StatePokemoz.lx < 10) (StatePokemoz.hp == 0)} then
+	 if(StatePokemoz.hp>12) then Rand Rand2 in
+	    if ({And (State.x > 5) (State.y > 5)}) then
+	       Rand = ({OS.rand $} mod 70)
+	    else
+	       Rand = ({OS.rand $} mod 100)
+	    end
+	    Rand2 = ({OS.rand $} mod 2)
+	    if (Rand < 50 ) then
+	       
+	       if (Rand2 == 0) then {Send PortPersoPrincipal moveLeft}
+	       else {Send PortPersoPrincipal moveUp} end
+	    else
+	       if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
+	       else {Send PortPersoPrincipal moveDown} end
+	    end
+	 else
+	    {Send PortPersoPrincipal moveRight}
+	    {Send PortPersoPrincipal moveDown}
+	 end
+      else
 	 {Send PortPersoPrincipal moveRight}
 	 {Send PortPersoPrincipal moveUp}
-      %elseif(StatePokemoz.hp < 10) then FINIR JEUX EN EVITANT PERSO ET HERBE TODO
-      else Rand Rand2 in
-	 if ({And (State.x > 5) (State.y > 5)}) then  Rand = ({OS.rand $} mod 70)
-	 else
-	    Rand = ({OS.rand $} mod 100)
-	 end
-	 Rand2 = ({OS.rand $} mod 2)
-	 if (Rand < 50 ) then
-	    if (Rand2 == 0) then {Send PortPersoPrincipal moveLeft}
-	    else {Send PortPersoPrincipal moveUp} end
-	 else
-	    if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
-	    else {Send PortPersoPrincipal moveDown} end
-	 end
+	 
       end
+	 
+      % if (StatePokemoz.hp < 1 ) then
+      % 	 %technique assez barbare mais fonctionnelle
+      % 	 {Send PortPersoPrincipal moveRight}
+      % 	 {Send PortPersoPrincipal moveUp}
+      % %elseif(StatePokemoz.hp < 10) then FINIR JEUX EN EVITANT PERSO ET HERBE TODO
+      % else Rand Rand2 in
+      % 	 if ({And (State.x > 5) (State.y > 5)}) then  Rand = ({OS.rand $} mod 70)
+      % 	 else
+      % 	    Rand = ({OS.rand $} mod 100)
+      % 	 end
+      % 	 Rand2 = ({OS.rand $} mod 2)
+      % 	 if (Rand < 50 ) then
+      % 	    if (Rand2 == 0) then {Send PortPersoPrincipal moveLeft}
+      % 	    else {Send PortPersoPrincipal moveUp} end
+      % 	 else
+      % 	    if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
+      % 	    else {Send PortPersoPrincipal moveDown} end
+      % 	 end
+      % end
       {MovePersoPrincipalIntelligence }
    end
 
@@ -373,7 +395,7 @@ in
    Game = {StartGame (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end) ((10-Speed)*Delai) MapFile PersoPrincipalAuto}
   
 
-   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
+   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
    PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
 
    %%%%% Fonction qui fait évoluer les pokémoz sauvages 

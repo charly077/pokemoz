@@ -21,6 +21,7 @@ export
    InitTrainerFunctor
    
 define
+   Exit = Application.exit
    Show = System.show
    Browse = Browser.browse
    CreatePerso = Graphic.createPerso
@@ -33,6 +34,7 @@ define
    Map
    WindowMap
    PortPersoPrincipal
+   PausePortObject
    
    Names = names("Jean" "Sacha" "Ondine" "Pierre")
 
@@ -40,12 +42,13 @@ define
 %%%%%%%%%%%%%%%%%%%%%% Fonctions de base %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse PortPersoPrincipalToUse}
+   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse PortPersoPrincipalToUse PausePortObjectToUse}
       GrassCombat = GrassCombatFunction
       MapTrainers = MapTrainersPortObject
       Map = MapPortObject
       WindowMap = WindowMapToUse
       PortPersoPrincipal = PortPersoPrincipalToUse
+      PausePortObject = PausePortObjectToUse
    end
    
 
@@ -147,7 +150,7 @@ Wilds = Pokemoz.wilds
 	 X = {PauseRec}
       in
 	 if N>0 then
-	    {Delay 10} %% Avoid that 2 trainer use the same MapTrainerState so it can avoid collision and créate a fact that all trainer doesn't still move at the same time
+	    {Delay 10} %% Avoid that 2 trainer use the same MapTrainerState so it can avoid collision and create a fact that all trainer doesn't still move at the same time
 	    if ProbMove>({OS.rand} mod 100)+1 then
 	       {Send RecordPortTrainer.N Move.(({OS.rand} mod 4)+1)}
 	       {MoveTrainer RecordPortTrainer N-1}
@@ -168,7 +171,11 @@ Wilds = Pokemoz.wilds
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
 	 {Move Init moveLeft}
-	 if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end %% Ajouter la condition que c'est le preso principal
+
+	 if (Init.type==persoPrincipal) then
+	    if (Grass==false) then {GrassCombat Init} end
+	 end
+	 
 	 {Send MapTrainers checkCombat((Init.x)-1 Init.y)}
 	 {AdjoinAt Init x (Init.x)-1}
       else Init
@@ -182,7 +189,13 @@ Wilds = Pokemoz.wilds
 	 {Move Init moveRight}
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
-	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} end
+	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} {Exit 0} end
+	    if {And (Init.x +1 == 7) (Init.y == 7)} then Pokemoz in
+	       {Send Init.p setHpMax()}
+	       {Send Init.p getState(Pokemoz)}
+	       {Browse Pokemoz}
+	    end
+	    
 	 end
 	 {Send MapTrainers checkCombat((Init.x)+1 Init.y)}
 	 {AdjoinAt Init x (Init.x)+1}
@@ -197,9 +210,10 @@ Wilds = Pokemoz.wilds
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1 Init.n)}
 	 {Move Init moveUp}
+	 
 	 if  (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
-	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} end
+	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} {Exit 0} end
 	 end
 	 {Send MapTrainers checkCombat(Init.x (Init.y)-1)}
 	 {AdjoinAt Init y (Init.y)-1}
@@ -213,7 +227,15 @@ Wilds = Pokemoz.wilds
       if B then {Send MapTrainers setMap((Init.x) Init.y 0) }
 	 {Send MapTrainers setMap((Init.x) (Init.y)+1 Init.n)}
 	 {Move Init moveDown}
-	 if {And (Grass==false) (Init.type==persoPrincipal)} then  {GrassCombat Init} end
+	 
+	 if (Init.type==persoPrincipal) then
+	    if (Grass==false) then {GrassCombat Init} end
+	    if {And (Init.x == 7) (Init.y+1 == 7)} then Pokemoz in
+	       {Send Init.p setHpMax()}
+	       {Send Init.p getState(Pokemoz)}
+	       {Browse Pokemoz}
+	    end
+	 end
 	 {Send MapTrainers checkCombat((Init.x) (Init.y)+1)}
 	 {AdjoinAt Init y (Init.y)+1}
       else Init
@@ -222,7 +244,7 @@ Wilds = Pokemoz.wilds
 
 %%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
 
-   fun {SetAuto Init}
+   fun {SetAuto Init} % vraiment utilie ???
       if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
       else {AdjoinAt Init auto (Init.auto)+1}
       end
@@ -233,12 +255,12 @@ Wilds = Pokemoz.wilds
 
    fun {FTrainer Msg Init}
       case Msg
-      of moveLeft then {MoveLeft Init} 
-      [] moveRight then {MoveRight Init} 
-      [] moveDown then {MoveDown Init} 
-      [] moveUp then {MoveUp Init}
+      of moveLeft then if ({Send PausePortObject getState($)}==0) then {MoveLeft Init} else Init end
+      [] moveRight then if ({Send PausePortObject getState($)}==0) then {MoveRight Init} else Init end
+      [] moveDown then if ({Send PausePortObject getState($)}==0) then {MoveDown Init} else Init end
+      [] moveUp then if ({Send PausePortObject getState($)}==0) then {MoveUp Init} else Init end
       [] setauto then {SetAuto Init}
-      [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $}
+      [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $} % but ???
       [] getPortObject(R) then R = Init.portObject Init
       [] get(X) then X=Init Init
       [] getState(State) then State=Init Init

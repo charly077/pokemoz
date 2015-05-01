@@ -1,13 +1,9 @@
-functor
+declare  Map = map(r(1 1 1 0 0 0 0)
+	     r(1 1 1 0 0 1 1)
+	     r(1 1 1 0 0 1 1)
+	     r(0 0 0 0 0 1 1)
+	     r(0 0 0 1 1 1 1)
+	     r(0 0 0 1 1 0 0)
+	     r(0 0 0 0 0 0 0))
 
-import 
-Graphic
-
-define
-
-StarGame = Graphic.startGame
-
-in
-	toTest
-end	
-
+{Pickle.save Map "map2.txt"}

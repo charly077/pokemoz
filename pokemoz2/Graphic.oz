@@ -230,15 +230,37 @@ define
    fun {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
+      PokemozAttaquantType
+      PokemozPersoPrincipalType
       ImageCanvasPersoPrincipal
       AttaquantImage
       AttaqueImage
+      ColorAttaquant
+      ColorAttaque
       X
    in
       PokemozAttaquantName = Attaquant.name
+      PokemozAttaquantType = Attaquant.type
       {Send Attaque.p getState(X)}
       PokemozPersoPrincipalName = X.name 
-      % On peut mettre directement le pokemoz
+      PokemozPersoPrincipalType = X.type
+
+     % On peut mettre directement le pokemoz
+      %TODO Faire les colors
+      case PokemozAttaquantType
+      of grass then ColorAttaquant=green
+      [] fire then ColorAttaquant=red
+      [] water then ColorAttaquant=blue
+      end
+      {CanvasAttaquant set(bg:ColorAttaquant)}
+
+      case PokemozPersoPrincipalType
+      of grass then ColorAttaque=green
+      [] fire then ColorAttaque=red
+      [] water then ColorAttaque=blue
+      end
+      
+      {CanvasPersoPrincipal set(bg:ColorAttaque)}	
       {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
       % Mettre l'image du dresseur pendant une seconde
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
@@ -253,24 +275,47 @@ define
       PokemozAttaquantName
       PokemozPersoPrincipalName
       PokemozPersoPrincipal % the same as attaque wich mean attacked (attaqué)
+      PokemozPersoPrincipalState
       PokemozAttaquant
+      PokemozAttaquantState
       ImageCanvasPersoPrincipal
       ImageCanvasPersoSauvage
       AttaquantImage
       AttaqueImage
+      ColorAttaquant
+      ColorAttaque
    in
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
       {CanvasAttaquant create(image 550 150 image:PersoSauvageImageGrand handle:ImageCanvasPersoSauvage)}
       {Delay 3000} % Permet de laisser les perso 3 secondes
       PokemozAttaquant = Attaquant.p
       PokemozPersoPrincipal = Attaque.p
-      PokemozAttaquantName = ({Send PokemozAttaquant getState($)}).name
-      PokemozPersoPrincipalName = ({Send PokemozPersoPrincipal getState($)}).name
+      PokemozAttaquantState = {Send PokemozAttaquant getState($)}
+      PokemozAttaquantName = (PokemozAttaquantState).name
+      PokemozPersoPrincipalState = {Send PokemozPersoPrincipal getState($)}
+      PokemozPersoPrincipalName = (PokemozPersoPrincipalState).name
 
       {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName} handle:AttaqueImage) }
       {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
       {ImageCanvasPersoPrincipal delete}
       {ImageCanvasPersoSauvage delete}
+
+      % On peut mettre directement le pokemoz
+      %TODO Faire les colors
+      case PokemozAttaquantState.type 
+      of grass then ColorAttaquant=green
+      [] fire then ColorAttaquant=red
+      [] water then ColorAttaquant=blue
+      end
+      {CanvasAttaquant set(bg:ColorAttaquant)}
+
+      case PokemozPersoPrincipalState.type
+      of grass then ColorAttaque=green
+      [] fire then ColorAttaque=red
+      [] water then ColorAttaque=blue
+      end
+      {CanvasPersoPrincipal set(bg:ColorAttaque)}
+      
       combat(attaquantImage:AttaquantImage attaqueImage:AttaqueImage)
    end
 
@@ -291,7 +336,7 @@ define
 		  canvas(handle:CanvasAttaquant width:700 height:300 bg:white)
 		  canvas(handle:CanvasPersoPrincipal width:700 height:300 bg:white)
 		  label(handle:LabelPersoPrincipal glue:w)
-		  label(handle:LabelWriteAction bg:c(20 50 120) borderwidth:3 justify:center width:65 font:Font)
+		  label(handle:LabelWriteAction bg:c(42 167 169) borderwidth:3 justify:center width:65 font:Font)
 		  placeholder(handle:PlaceHolder))
       Label
       ToAddCombat
@@ -309,14 +354,15 @@ define
       else
 	 {Show "error StartCombat"}
       end
-      if (FightAuto == false) then
-	 thread
-	    {Delay 3500}
-	    if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))} % we can't run away
-	    else
-	       {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)  button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+      if (FightAuto == you) then
+	  thread
+	     {Delay 3500}
+	     
+	     if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10) button(text:"Run away" action:Close width:10 glue:we bg:white)))}
+	     else
+	        {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))}  % we can't run away
 	    end
-	 end
+	  end
       end
       {Record.adjoin ToAddCombat combat(windowCombat:WindowCombat canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal labelWriteAction:LabelWriteAction) $}
    end
@@ -361,7 +407,7 @@ define
 
 
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   %%%%%%%%%%% Choisir un pokémon avant de commencer %%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%% Choisir un pokémoz avant de commencer %%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    fun{Choose}
       Window

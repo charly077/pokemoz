@@ -1,22 +1,22 @@
-CHEMIN = /Applications/Mozart2.app/Contents/Resources/bin/
-
+OZENGINE = $(shell locate /bin/ozengine)
+OZC = $(shell locate /bin/ozc) 
 
 all : Graphic.ozf Pokemoz.ozf Trainer.ozf Game.ozf
 
 exemple : all 
-	$(CHEMIN)ozengine Game.ozf --mapFile 'map.txt' --probability 35 --speed 4 --autofight true --auto true
+	$(OZENGINE) Game.ozf --mapFile 'map.txt' --probability 35 --speed 4 --autofight fight  --auto 
 
 Graphic.ozf : Graphic.oz
-	$(CHEMIN)ozc -c Graphic.oz
+	$(OZC) -c Graphic.oz
 
 Pokemoz.ozf : Pokemoz.oz
-	$(CHEMIN)ozc -c Pokemoz.oz
+	$(OZC) -c Pokemoz.oz
 
 Trainer.ozf : Trainer.oz
-	$(CHEMIN)ozc -c Trainer.oz
+	$(OZC) -c Trainer.oz
 	
 Game.ozf : Game.oz
-	$(CHEMIN)ozc -c Game.oz
+	$(OZC) -c Game.oz
 
 clear : 
 	rm *.ozf
