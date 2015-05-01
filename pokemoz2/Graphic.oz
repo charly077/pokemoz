@@ -145,13 +145,17 @@ define
       CanvasMap
       WindowMap
       Desc
+      proc {Close}
+	 {WindowMap close}
+	 {Application.exit 0}
+      end
    in
       {Show startGame}
       DSpeed=DSpeedToApply
       {Pickle.load MapFile Map} % pick the map
       Desc = td(title:"Pokemoz, the beginning of the end :) "
 		canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100)
-		button(text:"Close" action:toplevel#close width:10))
+		button(text:"Close" action:Close width:10))  
    
       WindowMap = {QTk.build Desc}
 
