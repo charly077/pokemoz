@@ -1,19 +1,15 @@
 PRIORITAIRE
--> Faire l'intelligence artificielle
--> Se mettre d’accord sur les parametres autofight !!!!!!!!
+
 BUG :
 ->Gestion combat multiple …
-->combatwild en mode manuel 
-->RunAway en combat dresseur en mode manuel et en non manuel
-
 
 A Ameliorer
-->close la map correctement si on appuie sur close
--> Succes fuite avec une probabilité
 -> Attention Speed de game doit (retirer des record trainer)
 -> remettre le code au propre
--> supprimer les warnings
 -> purifier le code
--> animation pour les attaques !!!
--> Dresseur tjs le meme pokemoz
+-> close la map correctement si on appuie sur close
 -> Terminer proprement le jeu sur le terminal 
+-> Succes fuite avec une probabilité
+-> supprimer les warnings
+-> lvl up pokemon en plein combat ?
+-> animation pour les attaques !!!

@@ -43,7 +43,7 @@ define
    Proba = Args.probability mod 101 % must be less than 100
    Speed = Args.speed mod 11 % must be less than 10
    PersoPrincipalAuto = Args.auto % On utilise l'intelligence artificielle par défaut
-   {Browse FightAuto}
+   
    
 % Port object abstraction
 % Init = initial state
@@ -205,6 +205,7 @@ define
 	    if ({And StillAlife1 StillAlife2}) then
 	       %Si le combat est automatique il faut lui permettre de continuer
 	       if (FightAuto==fight) then {Send PortAttack attack} end
+	       if (FightAuto==runAway) then {Send PortAttack attack} end
 	       {CombatRec X Y Sr Combat PortAttack MsgAttack MsgBeAttacked}
 	    else
 	       {Delay D}
@@ -229,9 +230,9 @@ define
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
       if ({And StatePokemozX.hp>0 StateY.hp>0}) then
-	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
+	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto WaitBeforeFight}
 	 {SetCombatState Combat StatePokemozX StateY}
-	 if (FightAuto == runAway) then {Combat.windowCombat close}
+	 if (FightAuto == runAway) then {Combat.windowCombat close} {EndCombat}
 	 else
 	    thread {CombatRec StateX.p Y PortAttackList Combat PortAttack "We have successfully attacked the wild pokemoz" "The wild pokemoz has successfully attacked your pokemoz" } end
 	 end 
@@ -259,7 +260,7 @@ define
       {Send StateX.p getState(StatePokemozX)}
       {Send StateY.p getState(StatePokemozY)}
       if ({And StatePokemozX.hp>0 StatePokemozY.hp>0}) then
-	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
+	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto WaitBeforeFight}
 	 {SetCombatState Combat StatePokemozX StatePokemozY}
 	 % We can't run away
 	 thread {CombatRec StateX.p StateY.p PortAttackList Combat PortAttack "We have successfully attacked the wild trainer's pokemoz" "The wild trainer's pokemoz has successfully attacked your pokemoz"} end
@@ -326,7 +327,7 @@ define
       {Delay ((10-Speed)*Delai)}
       {Send PortPersoPrincipal getState(State)}
       {Send State.p getState(StatePokemoz)}
-      if {Or (StatePokemoz.lx < 10) (StatePokemoz.hp == 0)} then
+      if {Or (StatePokemoz.lx < 9) (StatePokemoz.hp == 0)} then
 	 if(StatePokemoz.hp>12) then Rand Rand2 in
 	    if ({And (State.x > 5) (State.y > 5)}) then
 	       Rand = ({OS.rand $} mod 70)

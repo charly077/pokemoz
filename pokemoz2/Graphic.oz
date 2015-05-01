@@ -249,8 +249,6 @@ define
       PokemozPersoPrincipalName = X.name 
       PokemozPersoPrincipalType = X.type
 
-     % On peut mettre directement le pokemoz
-      %TODO Faire les colors
       case PokemozAttaquantType
       of grass then ColorAttaquant=green
       [] fire then ColorAttaquant=red
@@ -324,7 +322,7 @@ define
    end
 
    %PortAttaque est un port qui permet de savoir que le bouton attack à été appuyé
-   fun {StartCombat Attaque AttaquantPort PortAttack PausePortObject FightAuto}
+   fun {StartCombat Attaque AttaquantPort PortAttack PausePortObject FightAuto WaitBeforeFight}
       WindowCombat
       CanvasAttaquant
       CanvasPersoPrincipal
@@ -346,6 +344,7 @@ define
       ToAddCombat
       proc {Close}
 	 {WindowCombat close}
+	 {Send WaitBeforeFight continue}
 	 {Send PausePortObject continue}
       end
    in
@@ -361,7 +360,6 @@ define
       if (FightAuto == you) then
 	  thread
 	     {Delay 3500}
-	     
 	     if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10) button(text:"Run away" action:Close width:10 glue:we bg:white)))}
 	     else
 	        {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10)))}  % we can't run away

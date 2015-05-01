@@ -193,7 +193,7 @@ Wilds = Pokemoz.wilds
 	    if {And (Init.x +1 == 7) (Init.y == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
-	       {Browse Pokemoz}
+
 	    end
 	    
 	 end
@@ -233,7 +233,6 @@ Wilds = Pokemoz.wilds
 	    if {And (Init.x == 7) (Init.y+1 == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
-	       {Browse Pokemoz}
 	    end
 	 end
 	 {Send MapTrainers checkCombat((Init.x) (Init.y)+1)}
