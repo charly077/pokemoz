@@ -36,8 +36,6 @@ define
    
    % Gestion des arguments
    Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:atom default:fight) auto(single type:bool default:true))}
-   % if (Args.autofight == true) then FightAuto = fight % can be fight or runAway TODO
-   % else FightAuto = runAway end
    FightAuto = Args.autofight
    MapFile = Args.mapFile % have to be the name of the file
    Proba = Args.probability mod 101 % must be less than 100
@@ -68,9 +66,9 @@ define
       [] getState(X) then X=State State
       end
    end
-   PausePortObject = {NewPortObject Pause 0} % Port Utilisé pour mettre les perso en Pause :)
-   
+   PausePortObject = {NewPortObject Pause 0} % Port Utilisé pour mettre les perso en Pause :)   
    WaitBeforeFight = {NewPortObject Pause 0}
+   
    fun{WaitCombat}
       fun {PauseRec}
 	 {Delay ({OS.rand $} mod 5)} %Avoid synchronisation

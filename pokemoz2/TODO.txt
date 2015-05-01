@@ -2,6 +2,7 @@ PRIORITAIRE
 
 BUG :
 ->Gestion combat multiple …
+-> Combat grass hors herbe … 
 
 A Ameliorer
 -> Attention Speed de game doit (retirer des record trainer)

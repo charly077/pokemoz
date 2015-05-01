@@ -92,8 +92,7 @@ define
 
 Wilds = Pokemoz.wilds
 
-%Creation d'un record trainer spécifique
-
+%creation of a record of specific Trainer
    fun {CreateTrainer Name Pokemoz X Y Type Canvas N}
       local B in {Send MapTrainers check(X Y B)}
 	 if B then {Send MapTrainers setMap(X Y N)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y type:Type n:N)}
@@ -102,7 +101,7 @@ Wilds = Pokemoz.wilds
       end
    end
 
-% Création d'un record trainer sauvage aleatoire
+% creation of a record of wild Trainer
    fun {CreateRandTrainer Number Canvas}
       local Name X Y Pokemoz Type X1 Y1 in
 	 Name = Names.Number
@@ -120,7 +119,7 @@ Wilds = Pokemoz.wilds
    end
 
 
-%Creation d'un record trainers contenant des trainers aleatoires
+%creation of an record of the record of wild Trainer
    fun{CreateOtherTrainer Number Canvas}
       local R
 	 fun{CreateOtherTrainers Number Trainers Canvas}
@@ -136,8 +135,13 @@ Wilds = Pokemoz.wilds
 
 
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
-
-
+   %pre : RecordPortTrainer : record of port of trainer 
+   %      DelayToApply : int represents the duration of a movement of turns
+   %      Speed : int represents the speed of trainers
+   %      Pause : port object for block the movements of trainers
+   %
+   %Function managing the random movements of wild trainers
+   %
    proc {MoveOther RecordPortTrainer DelayToApply Speed Pause}
       Width = {Record.width RecordPortTrainer}
       Move=move(moveUp moveDown moveRight moveLeft)
@@ -168,38 +172,42 @@ Wilds = Pokemoz.wilds
    end
    
       
-
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveLeft Init}
       B Grass TypePerso in {Send MapTrainers check((Init.x)-1 Init.y B)}
       {Send Map check((Init.x)-1 Init.y Grass)}
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
 	 {Move Init moveLeft}
-
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
-	 end
-	 
+	    {Delay 10}
+	 end	 
 	 {Send MapTrainers checkCombat((Init.x)-1 Init.y)}
 	 {AdjoinAt Init x (Init.x)-1}
       else Init
       end
    end
 
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveRight Init}
       B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
       if B then {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)+1 Init.y Init.n)}
 	 {Move Init moveRight}
 	 if (Init.type==persoPrincipal) then
-	    if (Grass==false) then {GrassCombat Init} end
+	    if (Grass==false) then {GrassCombat Init}  {Delay 10} end
 	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} {Exit 0} end
 	    if {And (Init.x +1 == 7) (Init.y == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
-
-	    end
-	    
+	    end   
 	 end
 	 {Send MapTrainers checkCombat((Init.x)+1 Init.y)}
 	 {AdjoinAt Init x (Init.x)+1}
@@ -207,16 +215,18 @@ Wilds = Pokemoz.wilds
       end
    end
 
-
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveUp Init}
       B Grass in
       {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)} 
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1 Init.n)}
-	 {Move Init moveUp}
-	 
+	 {Move Init moveUp}	 
 	 if  (Init.type==persoPrincipal) then
-	    if (Grass==false) then {GrassCombat Init} end
+	    if (Grass==false) then {GrassCombat Init} {Delay 10} end
 	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} {Exit 0} end
 	 end
 	 {Send MapTrainers checkCombat(Init.x (Init.y)-1)}
@@ -225,15 +235,17 @@ Wilds = Pokemoz.wilds
       end
    end
 
-
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveDown Init}
       B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
       if B then {Send MapTrainers setMap((Init.x) Init.y 0) }
 	 {Send MapTrainers setMap((Init.x) (Init.y)+1 Init.n)}
-	 {Move Init moveDown}
-	 
+	 {Move Init moveDown}	 
 	 if (Init.type==persoPrincipal) then
-	    if (Grass==false) then {GrassCombat Init} end
+	    if (Grass==false) then {GrassCombat Init} {Delay 10} end
 	    if {And (Init.x == 7) (Init.y+1 == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
@@ -245,15 +257,6 @@ Wilds = Pokemoz.wilds
       end
    end
 
-%%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
-
-   fun {SetAuto Init} % vraiment utilie ???
-      if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
-      else {AdjoinAt Init auto (Init.auto)+1}
-      end
-   end
-
-
 %%%%%%%%%%%%% fonction mere trainer %%%%%%%%%%%%%%%%%%
 
    fun {FTrainer Msg Init}
@@ -262,7 +265,6 @@ Wilds = Pokemoz.wilds
       [] moveRight then if ({Send PausePortObject getState($)}==0) then {MoveRight Init} else Init end
       [] moveDown then if ({Send PausePortObject getState($)}==0) then {MoveDown Init} else Init end
       [] moveUp then if ({Send PausePortObject getState($)}==0) then {MoveUp Init} else Init end
-      [] setauto then {SetAuto Init}
       [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $} % but ???
       [] getPortObject(R) then R = Init.portObject Init
       [] get(X) then X=Init Init
@@ -270,14 +272,15 @@ Wilds = Pokemoz.wilds
       end
    end
 
+   %
+   %function creating a port object record trainer
+   %
    fun {CreateOtherPortObjectTrainers Number Canvas}
       Trainers = {CreateOtherTrainer Number Canvas}
-      %% fonction pour permettre de créer des portObject des trainers
       fun {Recurs NumberLeft Trainers}
 	 if (NumberLeft == 0 ) then trainers()
 	 else
-	    {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}
-	 
+	    {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}	 
 	 end
       end
    in
