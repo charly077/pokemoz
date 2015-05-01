@@ -397,12 +397,12 @@ in
   
 
    {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
-   PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
+   PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
 
    %%%%% Fonction qui fait évoluer les pokémoz sauvages 
    thread {WildsXpAdd Wilds Delai*2} end
 
-   RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3 3 Game.canvasMap}
+   RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3  Game.canvasMap}
 
    thread {MoveOther RecordOtherPortObjectTrainers Delai Speed PausePortObject} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!
 
