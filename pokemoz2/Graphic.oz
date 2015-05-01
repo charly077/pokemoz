@@ -345,7 +345,6 @@ define
 	 {Send PausePortObject continue}
       end
    in
-      {Browse 'coucou1'}
       WindowCombat = {QTk.build Combat}
       {WindowCombat show(modal:true)}
       {Send AttaquantPort getState(Attaquant)}
@@ -358,7 +357,6 @@ define
       if (FightAuto == you) then
 	  thread
 	     {Delay 3500}
-	     {Browse 'coucou'}
 	     
 	     if (Label == p) then {PlaceHolder set(lr(button(text:"Attack" action:proc{$} {Send PortAttack attack} end width:10) button(text:"Run away" action:Close width:10 glue:we bg:white)))}
 	     else

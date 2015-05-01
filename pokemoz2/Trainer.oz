@@ -171,7 +171,11 @@ Wilds = Pokemoz.wilds
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
 	 {Move Init moveLeft}
-	 if {And (Grass==false) (Init.type==persoPrincipal)} then {GrassCombat Init} end %% Ajouter la condition que c'est le preso principal
+
+	 if (Init.type==persoPrincipal) then
+	    if (Grass==false) then {GrassCombat Init} end
+	 end
+	 
 	 {Send MapTrainers checkCombat((Init.x)-1 Init.y)}
 	 {AdjoinAt Init x (Init.x)-1}
       else Init
@@ -186,6 +190,12 @@ Wilds = Pokemoz.wilds
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
 	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} {Exit 0} end
+	    if {And (Init.x +1 == 7) (Init.y == 7)} then Pokemoz in
+	       {Send Init.p setHpMax()}
+	       {Send Init.p getState(Pokemoz)}
+	       {Browse Pokemoz}
+	    end
+	    
 	 end
 	 {Send MapTrainers checkCombat((Init.x)+1 Init.y)}
 	 {AdjoinAt Init x (Init.x)+1}
@@ -200,6 +210,7 @@ Wilds = Pokemoz.wilds
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1 Init.n)}
 	 {Move Init moveUp}
+	 
 	 if  (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
 	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} {Exit 0} end
@@ -216,7 +227,15 @@ Wilds = Pokemoz.wilds
       if B then {Send MapTrainers setMap((Init.x) Init.y 0) }
 	 {Send MapTrainers setMap((Init.x) (Init.y)+1 Init.n)}
 	 {Move Init moveDown}
-	 if {And (Grass==false) (Init.type==persoPrincipal)} then  {GrassCombat Init} end
+	 
+	 if (Init.type==persoPrincipal) then
+	    if (Grass==false) then {GrassCombat Init} end
+	    if {And (Init.x == 7) (Init.y+1 == 7)} then Pokemoz in
+	       {Send Init.p setHpMax()}
+	       {Send Init.p getState(Pokemoz)}
+	       {Browse Pokemoz}
+	    end
+	 end
 	 {Send MapTrainers checkCombat((Init.x) (Init.y)+1)}
 	 {AdjoinAt Init y (Init.y)+1}
       else Init

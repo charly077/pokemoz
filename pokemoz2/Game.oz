@@ -326,25 +326,51 @@ define
       {Delay ((10-Speed)*Delai)}
       {Send PortPersoPrincipal getState(State)}
       {Send State.p getState(StatePokemoz)}
-      if (StatePokemoz.hp < 1 ) then
-	 %technique assez barbare mais fonctionnelle
+      if {Or (StatePokemoz.lx < 10) (StatePokemoz.hp == 0)} then
+	 if(StatePokemoz.hp>12) then Rand Rand2 in
+	    if ({And (State.x > 5) (State.y > 5)}) then
+	       Rand = ({OS.rand $} mod 70)
+	    else
+	       Rand = ({OS.rand $} mod 100)
+	    end
+	    Rand2 = ({OS.rand $} mod 2)
+	    if (Rand < 50 ) then
+	       
+	       if (Rand2 == 0) then {Send PortPersoPrincipal moveLeft}
+	       else {Send PortPersoPrincipal moveUp} end
+	    else
+	       if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
+	       else {Send PortPersoPrincipal moveDown} end
+	    end
+	 else
+	    {Send PortPersoPrincipal moveRight}
+	    {Send PortPersoPrincipal moveDown}
+	 end
+      else
 	 {Send PortPersoPrincipal moveRight}
 	 {Send PortPersoPrincipal moveUp}
-      %elseif(StatePokemoz.hp < 10) then FINIR JEUX EN EVITANT PERSO ET HERBE TODO
-      else Rand Rand2 in
-	 if ({And (State.x > 5) (State.y > 5)}) then  Rand = ({OS.rand $} mod 70)
-	 else
-	    Rand = ({OS.rand $} mod 100)
-	 end
-	 Rand2 = ({OS.rand $} mod 2)
-	 if (Rand < 50 ) then
-	    if (Rand2 == 0) then {Send PortPersoPrincipal moveLeft}
-	    else {Send PortPersoPrincipal moveUp} end
-	 else
-	    if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
-	    else {Send PortPersoPrincipal moveDown} end
-	 end
+	 
       end
+	 
+      % if (StatePokemoz.hp < 1 ) then
+      % 	 %technique assez barbare mais fonctionnelle
+      % 	 {Send PortPersoPrincipal moveRight}
+      % 	 {Send PortPersoPrincipal moveUp}
+      % %elseif(StatePokemoz.hp < 10) then FINIR JEUX EN EVITANT PERSO ET HERBE TODO
+      % else Rand Rand2 in
+      % 	 if ({And (State.x > 5) (State.y > 5)}) then  Rand = ({OS.rand $} mod 70)
+      % 	 else
+      % 	    Rand = ({OS.rand $} mod 100)
+      % 	 end
+      % 	 Rand2 = ({OS.rand $} mod 2)
+      % 	 if (Rand < 50 ) then
+      % 	    if (Rand2 == 0) then {Send PortPersoPrincipal moveLeft}
+      % 	    else {Send PortPersoPrincipal moveUp} end
+      % 	 else
+      % 	    if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
+      % 	    else {Send PortPersoPrincipal moveDown} end
+      % 	 end
+      % end
       {MovePersoPrincipalIntelligence }
    end
 
