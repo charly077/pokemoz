@@ -32,7 +32,7 @@ define
    MoveOther = Trainer.moveOther
    FightAuto %C'est un atom argument:)
    PersoPrincipalAuto
-   Delai=200
+   Delai=400
    
    % Gestion des arguments
    Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:atom default:fight) auto(single type:bool default:true))}
@@ -346,9 +346,12 @@ define
 	    {Send PortPersoPrincipal moveDown}
 	 end
       else
-	 {Send PortPersoPrincipal moveRight}
-	 {Send PortPersoPrincipal moveUp}
-	 
+	 Trainer in Trainer = {Send PortPersoPrincipal getState($)}
+	 if ({And (Trainer.x == 7) (Trainer.y == 7) }) then {Send PortPersoPrincipal moveUp} {Send PortPersoPrincipal moveLeft}
+	 else
+	    {Send PortPersoPrincipal moveRight}
+	    {Send PortPersoPrincipal moveUp}
+	 end
       end
 	 
       % if (StatePokemoz.hp < 1 ) then
@@ -394,7 +397,7 @@ in
    Game = {StartGame (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end) ((10-Speed)*Delai) MapFile PersoPrincipalAuto}
   
 
-   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
+   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject Game.text} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
    PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
 
    %%%%% Fonction qui fait évoluer les pokémoz sauvages 

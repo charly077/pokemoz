@@ -145,8 +145,10 @@ define
       CanvasMap
       WindowMap
       Desc
-      proc {Close}
-	 {WindowMap close}
+      Text
+      Font = {QTk.newFont font(family:"courier" size:15 weight:bold slant:italic)}
+      proc {Close1}
+	 {WindowMap close} 
 	 {Application.exit 0}
       end
    in
@@ -155,7 +157,8 @@ define
       {Pickle.load MapFile Map} % pick the map
       Desc = td(title:"Pokemoz, the beginning of the end :) "
 		canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100)
-		button(text:"Close" action:Close width:10))  
+		button(text:"Close" action:Close1 width:10)
+	       label(handle:Text justify:center width:65 font:Font ))  
    
       WindowMap = {QTk.build Desc}
 
@@ -170,7 +173,7 @@ define
 	 {WindowMap bind(event:"<Down>" action:MoveDownPrincipal)}
 	 {WindowMap bind(event:"<Right>" action:MoveRightPrincipal)}
       end
-      game(canvasMap:CanvasMap windowMap:WindowMap)
+      game(canvasMap:CanvasMap windowMap:WindowMap text:Text)
    end
 
 
@@ -329,7 +332,6 @@ define
       PlaceHolder
       LabelAttaquant
       LabelPersoPrincipal
-      %Attaque
       Attaquant
       LabelWriteAction
       Font = {QTk.newFont font(family:"courier" size:15 weight:bold slant:italic)}

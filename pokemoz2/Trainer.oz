@@ -35,6 +35,7 @@ define
    WindowMap
    PortPersoPrincipal
    PausePortObject
+   GameText
    
    Names = names("Jean" "Sacha" "Ondine" "Pierre")
 
@@ -43,13 +44,14 @@ define
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    %Initialization functions used by trainers
-   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse PortPersoPrincipalToUse PausePortObjectToUse}
+   proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse PortPersoPrincipalToUse PausePortObjectToUse GameTextToUse}
       GrassCombat = GrassCombatFunction
       MapTrainers = MapTrainersPortObject
       Map = MapPortObject
       WindowMap = WindowMapToUse
       PortPersoPrincipal = PortPersoPrincipalToUse
       PausePortObject = PausePortObjectToUse
+      GameText=GameTextToUse
    end
    
 
@@ -197,16 +199,26 @@ Wilds = Pokemoz.wilds
    % starts or does not start fighting according to the current environment
    %
    fun {MoveRight Init}
-      B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
+      B Grass Pokemoz in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
       if B then {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)+1 Init.y Init.n)}
 	 {Move Init moveRight}
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init}  {Delay 10} end
-	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} {Exit 0} end
+	    if {And (Init.x +1 == 7) (Init.y ==1)} then 
+	       Pokemoz = {Send Init.p getState($)}
+	       if ({And (Pokemoz.hp > 0) (pokemoz.lx == 10)}) then {GameText set("You win the game !!!")}
+	       else {GameText set("You lose the game :( ")} end
+	       {Delay 2000} {GameText set("")}
+	       {WindowMap close} {Exit 0} end
 	    if {And (Init.x +1 == 7) (Init.y == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
+	       {GameText set("Your pokemon health had been set to its max!")}
+	       thread
+		  {Delay 1000}
+		  {GameText set("")}
+	       end
 	    end   
 	 end
 	 {Send MapTrainers checkCombat((Init.x)+1 Init.y)}
@@ -227,7 +239,13 @@ Wilds = Pokemoz.wilds
 	 {Move Init moveUp}	 
 	 if  (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} {Delay 10} end
-	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} {Exit 0} end
+	    if {And (Init.x == 7) (Init.y-1 ==1)} then
+	       Pokemoz = {Send Init.p getState($)}
+	       %if ({And (Pokemoz.hp > 0) (pokemoz.lx == 10)}) then {GameText set("You win the game !!!")}
+	       %else {GameText set("You lose the game :( ")} end
+	       %{Delay 2000} {GameText set("")}
+
+	       {WindowMap close} {Exit 0} end
 	 end
 	 {Send MapTrainers checkCombat(Init.x (Init.y)-1)}
 	 {AdjoinAt Init y (Init.y)-1}
@@ -249,6 +267,11 @@ Wilds = Pokemoz.wilds
 	    if {And (Init.x == 7) (Init.y+1 == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
+	       {GameText set("Your pokemon health had been set to its max!")}
+	       thread
+		  {Delay 1000}
+		  {GameText set("")}
+	       end
 	    end
 	 end
 	 {Send MapTrainers checkCombat((Init.x) (Init.y)+1)}
