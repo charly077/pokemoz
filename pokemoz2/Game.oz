@@ -38,7 +38,7 @@ define
    Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:atom default:fight) auto(single type:bool default:true))}
    FightAuto = Args.autofight
    MapFile = Args.mapFile % have to be the name of the file
-   Proba = Args.probability mod 101 % must be less than 100
+   Proba = (Args.probability*100) mod 101 % must be less than 100
    Speed = Args.speed mod 11 % must be less than 10
    PersoPrincipalAuto = Args.auto % On utilise l'intelligence artificielle par défaut
    
