@@ -1,8 +1,10 @@
 PRIORITAIRE
 
 BUG :
-->Gestion combat multiple …
+->Gestion combat multiple … % j’ai fait de sorte que ça ne cause plus de problème splémentaire en remettant tout le tps les trainers en pause our le cas d’un combat qui se termine et pas les autres ! 
 -> Combat grass hors herbe … 
+
+CES deux bugs sont du au fait qu’on a implémenté des FAUX mutex agrémenté d’un petit délais dans des mouvements se lance avant de les mettre sur pause .. je vais voir ce que je peux faire mais je pense pas que ça soit possible de vraiment changer ça sans les états
 
 A Ameliorer
 -> Attention Speed de game doit (retirer des record trainer)

@@ -72,7 +72,7 @@ define
    fun{WaitCombat}
       fun {PauseRec}
 	 {Delay ({OS.rand $} mod 5)} %Avoid synchronisation
-	 if ({Send WaitBeforeFight getState($)}==1) then {PauseRec}
+	 if ({Send WaitBeforeFight getState($)}>0) then {PauseRec}
 	 else
 	    {Send WaitBeforeFight pause} % On remet en pause car si on est bloqué on va démarrer un autre combat
 	    {Send PausePortObject pause} % Si il y a eu un autre combat entre tps qui aurait débloqué .. on rebloque
@@ -169,6 +169,7 @@ define
       % La les variable doivent être 2 pokemoz
       proc{CombatRec X Y S Combat PortAttack MsgAttack MsgBeAttacked}
 	 P1 P2  D = ((10-Speed)*Delai) in
+	 {Send PausePortObject pause} % In case of unfortunal bugs cause to threads happen, like having several combats, if one end we have to put back trainers in "pause" mode
 	 case S of nil then skip
 	 [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
 	    {Send X attack(Y Succeed1)}
@@ -341,17 +342,16 @@ define
 	       if (Rand2 == 0) then {Send PortPersoPrincipal moveRight}
 	       else {Send PortPersoPrincipal moveDown} end
 	    end
-	 else
-	    {Send PortPersoPrincipal moveRight}
-	    {Send PortPersoPrincipal moveDown}
+	 else Trainer in Trainer = {Send PortPersoPrincipal getState($)}
+	    if ({And (Trainer.x == 7) (Trainer.y == 7) }) then {Send PortPersoPrincipal moveUp} {Send PortPersoPrincipal moveLeft}
+	    else
+	       {Send PortPersoPrincipal moveRight}
+	       {Send PortPersoPrincipal moveDown}
+	    end
 	 end
       else
-	 Trainer in Trainer = {Send PortPersoPrincipal getState($)}
-	 if ({And (Trainer.x == 7) (Trainer.y == 7) }) then {Send PortPersoPrincipal moveUp} {Send PortPersoPrincipal moveLeft}
-	 else
-	    {Send PortPersoPrincipal moveRight}
-	    {Send PortPersoPrincipal moveUp}
-	 end
+	 {Send PortPersoPrincipal moveRight}
+	 {Send PortPersoPrincipal moveUp}
       end
 	 
       % if (StatePokemoz.hp < 1 ) then

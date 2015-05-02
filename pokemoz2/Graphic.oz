@@ -29,19 +29,19 @@ define
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-   GrassImage = {QTk.newImage photo(file:'herbe.gif')}
-   RoadImage = {QTk.newImage photo(file:'chemin.gif')}
-   AreneImage = {QTk.newImage photo(file:'arene.gif')}
-   HomeImage = {QTk.newImage photo(file:'home.gif')}
+   GrassImage = {QTk.newImage photo(file:'img/herbe.gif')}
+   RoadImage = {QTk.newImage photo(file:'img/chemin.gif')}
+   AreneImage = {QTk.newImage photo(file:'img/arene.gif')}
+   HomeImage = {QTk.newImage photo(file:'img/home.gif')}
 
-   Bulbasoz = {QTk.newImage photo(file:'Bulbasoz.gif')}
-   Oztirtle = {QTk.newImage photo(file:'Oztirtle.gif')}
-   Charmandoz = {QTk.newImage photo(file:'Charmandoz.gif')}
+   Bulbasoz = {QTk.newImage photo(file:'img/Bulbasoz.gif')}
+   Oztirtle = {QTk.newImage photo(file:'img/Oztirtle.gif')}
+   Charmandoz = {QTk.newImage photo(file:'img/Charmandoz.gif')}
 
-   PersoPrincipalImage = {QTk.newImage photo(file:'persoPrincipal.gif')}
-   PersoPrincipalImageGrand = {QTk.newImage photo(file:'persoPrincipalGrand.gif')}
-   PersoSauvageImage = {QTk.newImage photo(file:'persoSauvage.gif')}
-   PersoSauvageImageGrand = {QTk.newImage photo(file:'persoSauvageGrand.gif')}
+   PersoPrincipalImage = {QTk.newImage photo(file:'img/persoPrincipal.gif')}
+   PersoPrincipalImageGrand = {QTk.newImage photo(file:'img/persoPrincipalGrand.gif')}
+   PersoSauvageImage = {QTk.newImage photo(file:'img/persoSauvage.gif')}
+   PersoSauvageImageGrand = {QTk.newImage photo(file:'img/persoSauvageGrand.gif')}
 
 
    % Windows usefull information

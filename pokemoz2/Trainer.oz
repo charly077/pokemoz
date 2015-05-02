@@ -110,7 +110,7 @@ Wilds = Pokemoz.wilds
 	 Pokemoz = {NewPortObject FPokemoz {CreatePokemoz5 Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)}} 
 	 X=({OS.rand} mod 6)+1 
 	 Y=({OS.rand} mod 6)+1
-	 if ({And X==6 Y==6}) then X1=5 Y1=5 % ca sert à Quoi ?
+	 if ({And X==6 Y==6}) then X1=5 Y1=5
 	 else
 	    X1 = X
 	    Y1 = Y
@@ -158,9 +158,11 @@ Wilds = Pokemoz.wilds
       proc {MoveTrainer RecordPortTrainer N}
 	 %During Combat we have to do a Pause !!!
 	 X = {PauseRec}
+	 Y
       in
 	 if N>0 then
-	    {Delay 10} %% Avoid that 2 trainer use the same MapTrainerState so it can avoid collision and create a fact that all trainer doesn't still move at the same time
+	    {Delay ({OS.rand $} mod 5)+3} %% Avoid that 2 trainer use the same MapTrainerState so it can avoid collision and create a fact that all trainer doesn't still move at the same time
+	    Y= {PauseRec} % Delay made a new problem .. if there is a combat, if a trainer move and create a second one .. it's difficult to handle due to thread .. 
 	    if ProbMove>({OS.rand} mod 100)+1 then
 	       {Send RecordPortTrainer.N Move.(({OS.rand} mod 4)+1)}
 	       {MoveTrainer RecordPortTrainer N-1}
@@ -205,9 +207,9 @@ Wilds = Pokemoz.wilds
 	 {Move Init moveRight}
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init}  {Delay 10} end
-	    if {And (Init.x +1 == 7) (Init.y ==1)} then 
+	    if {And (Init.x +1 == 7) (Init.y ==1)} then
 	       Pokemoz = {Send Init.p getState($)}
-	       if ({And (Pokemoz.hp > 0) (pokemoz.lx == 10)}) then {GameText set("You win the game !!!")}
+	       if ({And (Pokemoz.hp > 0) (Pokemoz.lx == 10)}) then {GameText set("You win the game !!!")}
 	       else {GameText set("You lose the game :( ")} end
 	       {Delay 2000} {GameText set("")}
 	       {WindowMap close} {Exit 0} end
@@ -241,9 +243,9 @@ Wilds = Pokemoz.wilds
 	    if (Grass==false) then {GrassCombat Init} {Delay 10} end
 	    if {And (Init.x == 7) (Init.y-1 ==1)} then
 	       Pokemoz = {Send Init.p getState($)}
-	       %if ({And (Pokemoz.hp > 0) (pokemoz.lx == 10)}) then {GameText set("You win the game !!!")}
-	       %else {GameText set("You lose the game :( ")} end
-	       %{Delay 2000} {GameText set("")}
+	       if ({And (Pokemoz.hp > 0) (Pokemoz.lx == 10)}) then {GameText set("You win the game !!!")}
+	       else {GameText set("You lose the game :( ")} end
+	       {Delay 2000} {GameText set("")}
 
 	       {WindowMap close} {Exit 0} end
 	 end
