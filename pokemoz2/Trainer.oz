@@ -82,12 +82,12 @@ define
 % structure is :
 % Trainer = t(p:_ x:X y:Y handle:_ type:wild/persoPrincipal name:Name)
 %Where
-%   p : is the port of the pokemoz of the trainer
-%   x : int represents abscisse where the trainer on the map is located
-%   y : int represnets ordered where the trainer on the map is located
-%   handle : graphics components trainer
-%   type : is an atom which is either wild either persoPrincipal
-%   name : String represents the name of the trainer
+%   p : PortObject of the trainer’s pokemoz
+%   x : int representative of the abscisse of the position of the trainer on the map
+%   y : int representative of the ordinate of the position of the trainer on the map
+%   handle : graphics components of the trainer
+%   type : atom that can take 2 different values : wild or persoPrincipal
+%   name : String representative of the name of the trainer
 %
 %
 %%%%%%%%%%%%%%%%% Fonctions de créations de Trainers %%%%%%%%%%%%%%%%

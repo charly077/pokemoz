@@ -49,7 +49,7 @@ end
 % structure is :
 % Pokemoz = p(type:_ name:_ hp:_ lx:_ xp:_)
 %Where
-%    type :the atoms grass/fire/water 
+%    type: atom that can take 3 different values : grass/fire/water 
 %    name : String representative the name of the pokemoz
 %    hp : int representative the health point of pokemoz
 %    lx : int representative the leve of pokemoz
