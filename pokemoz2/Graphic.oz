@@ -14,8 +14,6 @@ export
    StartCombat
    Move
    CreatePerso
-   %AttackWildPokemoz
-   %AttackTrainer
    StartCombat
    SetCombatState
    Choose
@@ -47,7 +45,7 @@ define
    % Windows usefull information
    HeightWidth=100
    AddXY=HeightWidth div 2
-   WidthBetween= HeightWidth %+ HeightWidth div 6
+   WidthBetween= HeightWidth
    N=7
 
    Map
@@ -57,6 +55,10 @@ define
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Map %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   %
+   %Create map GUI
+   %
    proc{CreateMapGraphique Map Canvas}
       MapList % Allow recursion
       % Function to create lines
@@ -96,6 +98,13 @@ define
 
 
 %%%%%%%%%%%%%%%%% Movement %%%%%%%%%%%%%%%
+
+   %
+   %Perso is the trainer GUI
+   %Movement is a atom which indicate the direction of movement 
+   %
+   %Fonction which manage move trainer on GUI map
+   %
    proc{Move Perso Movement}
       CanvasPerso
       TimeDelay
@@ -132,15 +141,14 @@ define
    %%%%%%%%%%%%%%% Démarrage de la map et du jeux %%%%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %
-   % C'est cette fonction qui doit être appellée pour démarrer le jeux
+   % It is this function that must be called to start the game
    %
-   % Pre : - Map, un record de type map
+   % Pre : - Map, a map type record
    %       - MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal
-   %         MoveRightPrincipal, les fonctions utilisée pour déplacer
-   %         un personnage
+   %         MoveRightPrincipal, functions used to move a character
    %
-   %Post : Renvoie le Canvas de la Map, il est utilile pour d'autres
-   %       Fonctions
+   %Post : Returns the Canvas of the Map, it is utilile for other functions
+   %
    fun {StartGame MoveUpPrincipal MoveLeftPrincipal MoveDownPrincipal MoveRightPrincipal DSpeedToApply MapFile MoveAuto}
       CanvasMap
       WindowMap
@@ -181,9 +189,9 @@ define
 %%%%%%%%%%%%%%%%%%% Gestion des personnages %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %
-   % Pre : - Canvas, le canva obtenu grâce à la fonction StartGame
-   %       - Trainer, un dresseur qui n'a pas encore été initialisé
-   %         graphiquement. Celui-ci doit obligatoirement avoir un type
+   % Pre : - Canvas, canva obtained through function StartGame
+   %       - Trainer, a trainer who has not been initialized
+   %                 graphically. It must have a type
    fun {CreatePerso Canvas Trainer}
       Photo
       Handle
@@ -198,13 +206,12 @@ define
 	 Photo = nil 
       end
       {Canvas create(image 50+(X-1)*WidthBetween 50+(Y-1)*WidthBetween image:Photo handle:Handle)}
-
-      %Recreer le perso pour le retourner
+      %set handle of trainer
       {Record.adjoin Trainer t(handle:Handle) Perso}
       Perso
    end
 
-   % Petite fonction indépendante pour trouver la photo du pokemoz
+   % Small independent function to find the photo of pokemoz
    fun {ChoosePhotoPokemoz Name}
       case Name of "Bulbasoz" then  Bulbasoz
       [] "Oztirtle" then  Oztirtle
@@ -220,20 +227,18 @@ define
    %%%%%%%%%%%%%%%%%%%% GESTION DES COMBATS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %
-   % On démarre avec la fonction StartCombat, qui renvoie un record
+   % Start with the StartCombat function, which returns a record
    % combat(canvasAttaquant:CanvasAttaquant
    %                          canvasPersoPrincipal:CanvasPersoPrincipal)
-   % Ce record permet, d'avoir accès aux variables, dans un cas préventif
-   % Cette fonction permet de gérer les combat
+   % This record allows access to variables, for preventive case
+   % This function allows you to manage fight
    %
-   % Pre: - Attaque est un recorde de type t, et doit être le perso principal
-   %      - Attaquant, soit un record de type p, si l'attaquant est un
-   %                                             pokémoz
-   %                   soit un record de type t, si l'attaquant est un
-   %                                             dresseur
+   % Pre: - Attaque t is a type of recorde, and should be the main personal
+   %      - Attaquant, either a p-type record, if the attacker is a pokémoz
+   %                   either a t type of record, if the attacker is a trainer
    %
 
-   % Perso principal >< pokémoz sauvage
+   % Main Perso >< wild pokémoz
    fun {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
@@ -251,6 +256,13 @@ define
       {Send Attaque.p getState(X)}
       PokemozPersoPrincipalName = X.name 
       PokemozPersoPrincipalType = X.type
+	
+      {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
+      % Mettre l'image du dresseur pendant une seconde
+      {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
+      {Delay 3000}
+      {ImageCanvasPersoPrincipal delete}
+      {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName}handle:AttaqueImage) }
 
       case PokemozAttaquantType
       of grass then ColorAttaquant=green
@@ -265,13 +277,7 @@ define
       [] water then ColorAttaque=blue
       end
       
-      {CanvasPersoPrincipal set(bg:ColorAttaque)}	
-      {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
-      % Mettre l'image du dresseur pendant une seconde
-      {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
-      {Delay 3000}
-      {ImageCanvasPersoPrincipal delete}
-      {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName}handle:AttaqueImage) }
+      {CanvasPersoPrincipal set(bg:ColorAttaque)}
       combat(attaquantImage:AttaquantImage attaqueImage:AttaqueImage)
    end
 
@@ -445,5 +451,4 @@ define
 	 X
       end
    end
-
 end
