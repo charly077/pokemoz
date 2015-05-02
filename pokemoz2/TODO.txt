@@ -17,3 +17,4 @@ A Ameliorer
 -> animation pour les attaques !!!
 -> Dresseur tjs le meme pokemoz
 -> Terminer proprement le jeu sur le terminal 
+-> Attention afficher un message lorsque la vie est remise au maximum

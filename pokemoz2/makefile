@@ -1,5 +1,5 @@
-OZENGINE = $(shell locate /bin/ozengine)
-OZC = $(shell locate /bin/ozc) 
+OZENGINE = $(shell locate /bin/ozengine | grep Mozart2)
+OZC = $(shell locate /bin/ozc | grep Mozart2) 
 
 all : Graphic.ozf Pokemoz.ozf Trainer.ozf Game.ozf
 

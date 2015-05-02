@@ -170,7 +170,7 @@ define
 
       % La les variable doivent être 2 pokemoz
       proc{CombatRec X Y S Combat PortAttack MsgAttack MsgBeAttacked}
-	 P1 P2  D = 1000 in
+	 P1 P2  D = ((10-Speed)*Delai) in
 	 case S of nil then skip
 	 [] attack|Sr then Succeed1 Succeed2 StillAlife1 StillAlife2 in
 	    {Send X attack(Y Succeed1)}
