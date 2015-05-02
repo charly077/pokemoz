@@ -36,14 +36,12 @@ define
    
    % Gestion des arguments
    Args = {Application.getArgs record(mapFile(single type:string default:'map.txt') probability(single type:int default:35) speed(single type:int default:4) autofight(single type:atom default:fight) auto(single type:bool default:true))}
-   % if (Args.autofight == true) then FightAuto = fight % can be fight or runAway TODO
-   % else FightAuto = runAway end
    FightAuto = Args.autofight
    MapFile = Args.mapFile % have to be the name of the file
    Proba = Args.probability mod 101 % must be less than 100
    Speed = Args.speed mod 11 % must be less than 10
    PersoPrincipalAuto = Args.auto % On utilise l'intelligence artificielle par défaut
-   {Browse FightAuto}
+   
    
 % Port object abstraction
 % Init = initial state
@@ -68,9 +66,9 @@ define
       [] getState(X) then X=State State
       end
    end
-   PausePortObject = {NewPortObject Pause 0} % Port Utilisé pour mettre les perso en Pause :)
-   
+   PausePortObject = {NewPortObject Pause 0} % Port Utilisé pour mettre les perso en Pause :)   
    WaitBeforeFight = {NewPortObject Pause 0}
+   
    fun{WaitCombat}
       fun {PauseRec}
 	 {Delay ({OS.rand $} mod 5)} %Avoid synchronisation
@@ -205,6 +203,7 @@ define
 	    if ({And StillAlife1 StillAlife2}) then
 	       %Si le combat est automatique il faut lui permettre de continuer
 	       if (FightAuto==fight) then {Send PortAttack attack} end
+	       if (FightAuto==runAway) then {Send PortAttack attack} end
 	       {CombatRec X Y Sr Combat PortAttack MsgAttack MsgBeAttacked}
 	    else
 	       {Delay D}
@@ -229,9 +228,9 @@ define
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
       if ({And StatePokemozX.hp>0 StateY.hp>0}) then
-	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
+	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto WaitBeforeFight}
 	 {SetCombatState Combat StatePokemozX StateY}
-	 if (FightAuto == runAway) then {Combat.windowCombat close}
+	 if (FightAuto == runAway) then {Combat.windowCombat close} {EndCombat}
 	 else
 	    thread {CombatRec StateX.p Y PortAttackList Combat PortAttack "We have successfully attacked the wild pokemoz" "The wild pokemoz has successfully attacked your pokemoz" } end
 	 end 
@@ -259,7 +258,7 @@ define
       {Send StateX.p getState(StatePokemozX)}
       {Send StateY.p getState(StatePokemozY)}
       if ({And StatePokemozX.hp>0 StatePokemozY.hp>0}) then
-	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto}
+	 Combat = {StartCombat StateX Y PortAttack PausePortObject FightAuto WaitBeforeFight}
 	 {SetCombatState Combat StatePokemozX StatePokemozY}
 	 % We can't run away
 	 thread {CombatRec StateX.p StateY.p PortAttackList Combat PortAttack "We have successfully attacked the wild trainer's pokemoz" "The wild trainer's pokemoz has successfully attacked your pokemoz"} end
@@ -326,7 +325,7 @@ define
       {Delay ((10-Speed)*Delai)}
       {Send PortPersoPrincipal getState(State)}
       {Send State.p getState(StatePokemoz)}
-      if {Or (StatePokemoz.lx < 10) (StatePokemoz.hp == 0)} then
+      if {Or (StatePokemoz.lx < 9) (StatePokemoz.hp == 0)} then
 	 if(StatePokemoz.hp>12) then Rand Rand2 in
 	    if ({And (State.x > 5) (State.y > 5)}) then
 	       Rand = ({OS.rand $} mod 70)
@@ -396,12 +395,12 @@ in
   
 
    {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
-   PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 2 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
+   PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
 
    %%%%% Fonction qui fait évoluer les pokémoz sauvages 
    thread {WildsXpAdd Wilds Delai*2} end
 
-   RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3 3 Game.canvasMap}
+   RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3  Game.canvasMap}
 
    thread {MoveOther RecordOtherPortObjectTrainers Delai Speed PausePortObject} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!
 

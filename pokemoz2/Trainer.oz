@@ -42,6 +42,7 @@ define
 %%%%%%%%%%%%%%%%%%%%%% Fonctions de base %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+   %Initialization functions used by trainers
    proc {InitTrainerFunctor GrassCombatFunction MapTrainersPortObject MapPortObject WindowMapToUse PortPersoPrincipalToUse PausePortObjectToUse}
       GrassCombat = GrassCombatFunction
       MapTrainers = MapTrainersPortObject
@@ -72,68 +73,75 @@ define
 %%%%%%%%%%%%%%%%%%%% Gestion Trainers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Le trainer represente les dresseurs se situant sur la carte et 
-% les actions qu'il peut effectuer en fonction d'ou il se trouve
-% sur la map.
+% The Trainer represents trainers lying on the card and 
+% the actions it can perform depending on where it is on the map.
 %
-% Un trainer est represente sous la forme de d'un record dont
-% la structure est :
-% Trainer = t(p:_ speed:_ auto:_ x:X y:Y handle:_ type:wild/persoPrincipal name:Name)
-%
-%type : est un atom
-%
+% A trainer is represented in the form of a record which
+% structure is :
+% Trainer = t(p:_ x:X y:Y handle:_ type:wild/persoPrincipal name:Name)
+%Where
+%   p : is the port of the pokemoz of the trainer
+%   x : int represents abscisse where the trainer on the map is located
+%   y : int represnets ordered where the trainer on the map is located
+%   handle : graphics components trainer
+%   type : is an atom which is either wild either persoPrincipal
+%   name : String represents the name of the trainer
 %
 %
 %%%%%%%%%%%%%%%%% Fonctions de créations de Trainers %%%%%%%%%%%%%%%%
 
 Wilds = Pokemoz.wilds
 
-%Creation d'un record trainer spécifique
-
-   fun {CreateTrainer Name Pokemoz X Y Speed Type Canvas N}
-      local B in {Send MapTrainers check(X Y B)} %% attention eviter les dresseurs en bas à droit et en haut à droite
-	 if B then {Send MapTrainers setMap(X Y N)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y speed:Speed auto:0 type:Type n:N)}
-	 else {CreateTrainer Name Pokemoz ({OS.rand} mod 7)+1 ({OS.rand} mod 7)+1 Speed Type Canvas N}
+%creation of a record of specific Trainer
+   fun {CreateTrainer Name Pokemoz X Y Type Canvas N}
+      local B in {Send MapTrainers check(X Y B)}
+	 if B then {Send MapTrainers setMap(X Y N)} {CreatePerso Canvas trainer(name:Name p:Pokemoz x:X y:Y type:Type n:N)}
+	 else {CreateTrainer Name Pokemoz ({OS.rand} mod 7)+1 ({OS.rand} mod 7)+1 Type Canvas N}
 	 end
       end
    end
 
-% Création d'un record trainer sauvage aleatoire
-   fun {CreateRandTrainer  Speed Number Canvas}
+% creation of a record of wild Trainer
+   fun {CreateRandTrainer Number Canvas}
       local Name X Y Pokemoz Type X1 Y1 in
 	 Name = Names.Number
 	 Pokemoz = {NewPortObject FPokemoz {CreatePokemoz5 Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)}} 
 	 X=({OS.rand} mod 6)+1 
 	 Y=({OS.rand} mod 6)+1
-	 if ({And X==6 Y==6}) then X1=5 Y1=5
+	 if ({And X==6 Y==6}) then X1=5 Y1=5 % ca sert à Quoi ?
 	 else
 	    X1 = X
 	    Y1 = Y
 	 end
 	 Type= wild
-	 {CreateTrainer Name Pokemoz X1 Y1 Speed Type Canvas Number}
+	 {CreateTrainer Name Pokemoz X1 Y1 Type Canvas Number}
       end
    end
 
 
-%Creation d'un record trainers contenant des trainers aleatoires
-   fun{CreateOtherTrainer Number Speed Canvas}
+%creation of an record of the record of wild Trainer
+   fun{CreateOtherTrainer Number Canvas}
       local R
-	 fun{CreateOtherTrainers Number Speed Trainers Canvas}
-	    if Number>0 then {CreateOtherTrainers Number-1 Speed {AdjoinAt Trainers Number {CreateRandTrainer Speed Number Canvas}} Canvas}
+	 fun{CreateOtherTrainers Number Trainers Canvas}
+	    if Number>0 then {CreateOtherTrainers Number-1 {AdjoinAt Trainers Number {CreateRandTrainer Number Canvas}} Canvas}
 	    else Trainers
 	    end
 	 end
       in {MakeRecord trainers [1] R}
-	 {CreateOtherTrainers Number Speed R Canvas}	 
+	 {CreateOtherTrainers Number R Canvas}	 
       end
    end
 
 
 
 %%%%%%%%%%%%%%% Gestion des déplacements %%%%%%%%%%%%%%%%%%%
-
-
+   %pre : RecordPortTrainer : record of port of trainer 
+   %      DelayToApply : int represents the duration of a movement of turns
+   %      Speed : int represents the speed of trainers
+   %      Pause : port object for block the movements of trainers
+   %
+   %Function managing the random movements of wild trainers
+   %
    proc {MoveOther RecordPortTrainer DelayToApply Speed Pause}
       Width = {Record.width RecordPortTrainer}
       Move=move(moveUp moveDown moveRight moveLeft)
@@ -164,38 +172,42 @@ Wilds = Pokemoz.wilds
    end
    
       
-
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveLeft Init}
       B Grass TypePerso in {Send MapTrainers check((Init.x)-1 Init.y B)}
       {Send Map check((Init.x)-1 Init.y Grass)}
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
 	 {Move Init moveLeft}
-
 	 if (Init.type==persoPrincipal) then
 	    if (Grass==false) then {GrassCombat Init} end
-	 end
-	 
+	    {Delay 10}
+	 end	 
 	 {Send MapTrainers checkCombat((Init.x)-1 Init.y)}
 	 {AdjoinAt Init x (Init.x)-1}
       else Init
       end
    end
 
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveRight Init}
       B Grass in {Send MapTrainers check((Init.x)+1 Init.y B)} {Send Map check((Init.x)+1 Init.y Grass)} 
       if B then {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)+1 Init.y Init.n)}
 	 {Move Init moveRight}
 	 if (Init.type==persoPrincipal) then
-	    if (Grass==false) then {GrassCombat Init} end
+	    if (Grass==false) then {GrassCombat Init}  {Delay 10} end
 	    if {And (Init.x +1 == 7) (Init.y ==1)} then {WindowMap close} {Exit 0} end
 	    if {And (Init.x +1 == 7) (Init.y == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
-	       {Browse Pokemoz}
-	    end
-	    
+	    end   
 	 end
 	 {Send MapTrainers checkCombat((Init.x)+1 Init.y)}
 	 {AdjoinAt Init x (Init.x)+1}
@@ -203,16 +215,18 @@ Wilds = Pokemoz.wilds
       end
    end
 
-
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveUp Init}
       B Grass in
       {Send MapTrainers check((Init.x) (Init.y)-1 B)} {Send Map check((Init.x) (Init.y)-1 Grass)} 
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x) (Init.y)-1 Init.n)}
-	 {Move Init moveUp}
-	 
+	 {Move Init moveUp}	 
 	 if  (Init.type==persoPrincipal) then
-	    if (Grass==false) then {GrassCombat Init} end
+	    if (Grass==false) then {GrassCombat Init} {Delay 10} end
 	    if {And (Init.x == 7) (Init.y-1 ==1)} then {WindowMap close} {Exit 0} end
 	 end
 	 {Send MapTrainers checkCombat(Init.x (Init.y)-1)}
@@ -221,19 +235,20 @@ Wilds = Pokemoz.wilds
       end
    end
 
-
+   %
+   % Moving the trainer to the left on the map trainer
+   % starts or does not start fighting according to the current environment
+   %
    fun {MoveDown Init}
       B Grass in {Send MapTrainers check((Init.x) (Init.y)+1 B)} {Send Map check((Init.x) (Init.y)+1 Grass)}
       if B then {Send MapTrainers setMap((Init.x) Init.y 0) }
 	 {Send MapTrainers setMap((Init.x) (Init.y)+1 Init.n)}
-	 {Move Init moveDown}
-	 
+	 {Move Init moveDown}	 
 	 if (Init.type==persoPrincipal) then
-	    if (Grass==false) then {GrassCombat Init} end
+	    if (Grass==false) then {GrassCombat Init} {Delay 10} end
 	    if {And (Init.x == 7) (Init.y+1 == 7)} then Pokemoz in
 	       {Send Init.p setHpMax()}
 	       {Send Init.p getState(Pokemoz)}
-	       {Browse Pokemoz}
 	    end
 	 end
 	 {Send MapTrainers checkCombat((Init.x) (Init.y)+1)}
@@ -241,15 +256,6 @@ Wilds = Pokemoz.wilds
       else Init
       end
    end
-
-%%%%%%%%%%%%% Fonctions générales %%%%%%%%%%%%%%%%%%%%
-
-   fun {SetAuto Init} % vraiment utilie ???
-      if Init.auto>0 then {AdjoinAt Init auto (Init.auto)-1}
-      else {AdjoinAt Init auto (Init.auto)+1}
-      end
-   end
-
 
 %%%%%%%%%%%%% fonction mere trainer %%%%%%%%%%%%%%%%%%
 
@@ -259,7 +265,6 @@ Wilds = Pokemoz.wilds
       [] moveRight then if ({Send PausePortObject getState($)}==0) then {MoveRight Init} else Init end
       [] moveDown then if ({Send PausePortObject getState($)}==0) then {MoveDown Init} else Init end
       [] moveUp then if ({Send PausePortObject getState($)}==0) then {MoveUp Init} else Init end
-      [] setauto then {SetAuto Init}
       [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $} % but ???
       [] getPortObject(R) then R = Init.portObject Init
       [] get(X) then X=Init Init
@@ -267,19 +272,18 @@ Wilds = Pokemoz.wilds
       end
    end
 
-   fun {CreateOtherPortObjectTrainers Number Speed Canvas}
-      Trainers = {CreateOtherTrainer Number Speed Canvas}
-      %% fonction pour permettre de créer des portObject des trainers
+   %
+   %function creating a port object record trainer
+   %
+   fun {CreateOtherPortObjectTrainers Number Canvas}
+      Trainers = {CreateOtherTrainer Number Canvas}
       fun {Recurs NumberLeft Trainers}
 	 if (NumberLeft == 0 ) then trainers()
 	 else
-	    {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}
-	 
+	    {Record.adjoin {Recurs NumberLeft-1 Trainers}   trainers(NumberLeft:{NewPortObject FTrainer Trainers.NumberLeft}) $}	 
 	 end
       end
    in
       {Recurs Number Trainers}
    end
-
-
 end
