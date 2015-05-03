@@ -62,6 +62,10 @@ define
    end
 
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Function to Pause during Combat %%%%%%%%%%%%%%%
+
+   %
+   %
+   %
    fun {Pause Msg State}
       case Msg of pause then 1
        [] continue then 0
@@ -70,7 +74,10 @@ define
    end
    PausePortObject = {NewPortObject Pause 0} % Port Utilisé pour mettre les perso en Pause :)   
    WaitBeforeFight = {NewPortObject Pause 0}
-   
+
+   %
+   %
+   %
    fun{WaitCombat}
       fun {PauseRec}
 	 {Delay ({OS.rand $} mod 5)} %Avoid synchronisation
@@ -85,6 +92,10 @@ define
       {Send PausePortObject pause}
       {PauseRec}
    end
+
+   %
+   %
+   %
    proc{EndCombat}
       {Send WaitBeforeFight continue}
       {Send PausePortObject continue} % je débloque
@@ -102,33 +113,31 @@ define
 	  r(0 0 0 0 0 0 0)
 	  r(0 0 0 0 0 0 0))
    end
+
    fun{CreateMap}
       {Pickle.load MapFile $} % pick the map
    end
 
-% Verifie si la case de coordonnee (X,Y) appartient à la map
-
+% Checks if the coordinate of box (X, Y) belongs to the map
    fun {Checkin X Y MapState}
       if {And (Y>0) (Y=<{Width MapState})} then {And (X>0) (X=<{Width MapState})}
       else false
       end
    end
 
-% Verifie si la case de coordonnee (X,Y) appartien à la map et est vide
-
+% Checks if the coordinate of box (X, Y) belongs to the map and is empty
    fun {Check X Y MapState}
       if {Checkin X Y MapState} then MapState.Y.X==0
       else false
       end
    end
 
-
-
-%( Fonction qui modifie les coordonnee (X,Y) de la Map Init ) = ancienne version .. maintenant le Set est un vrai set
+%Function that changes the coordinated (X, Y) of the Init Map
    fun {SetMap X Y Value MapState}
       {AdjoinAt MapState Y {AdjoinAt MapState.Y X Value}}
    end
 
+   
    proc {CheckFight NPerso X Y MapState}
       if {Or (MapState.Y.X == 0) (NPerso==0)} then skip
       else
@@ -138,6 +147,7 @@ define
 	 end
       end
    end
+   
    proc {CheckCombat X Y MapState} 
       NPerso = MapState.Y.X in
       if (X > 1) then {CheckFight NPerso X-1 Y MapState} end
@@ -216,17 +226,17 @@ define
 	 end
       end
 
-      % StateX est l'état de X, Y est le portObject
-      % dresseur pokemoz
+      % StateX is state of X an trainer,
+      % Y is portObject of pokemoz
+      % 
    proc{CombatWild StateX Y}
-      PortAttack PortAttackList StateY Combat StatePokemozX StateCombat X
+      PortAttack PortAttackList StateY Combat StatePokemozX X
    in
-      {Show blockedWild}
+      % {Show blockedWild}
       X = {WaitCombat}
-      {Show deblockedWild}
+      % {Show deblockedWild}
       PortAttack={NewPort PortAttackList}
-      if (FightAuto==fight) then {Send PortAttack attack} end % Permettre de démarrer le combat automatiquement si autoFight est déclenché
-      
+      if (FightAuto==fight) then {Send PortAttack attack} end % Allow to start the battle is triggered automatically if autoFight      
       if ({Send Y getHp($)}<1) then {Send  Y setHpMax} end
       {Send Y getState(StateY)}
       {Send StateX.p getState(StatePokemozX)}
@@ -243,21 +253,19 @@ define
    end
 
 %
-% X doit être l'état du perso principal
-% Y doit être le portObject du perso adverse
+% X is the state of main character
+% Y is the portObject of other trainer
 %
    proc{CombatPerso StateX Y}
       PortAttack PortAttackList StateY StatePokemozX StatePokemozY Combat X
    in
-      {Show blockedPerso}
+      % {Show blockedPerso}
       X = {WaitCombat}
-      {Show deblockedPerso}
+      % {Show deblockedPerso}
       PortAttack={NewPort PortAttackList}
       {Send Y getState(StateY)}
       if (FightAuto==fight) then {Send PortAttack attack} end % start automatically the fight
       if (FightAuto==runAway) then {Send PortAttack attack} end
-       % Obtain the state of the two pokemoz
-       %if (FightAuto==you) then {Send PortAttack attack} end
       {Send StateX.p getState(StatePokemozX)}
       {Send StateY.p getState(StatePokemozY)}
       if ({And StatePokemozX.hp>0 StatePokemozY.hp>0}) then
@@ -272,24 +280,23 @@ define
    end
 
 
-
+   %
+   % function that launches battle against wild pokemoz random manner
+   %
    proc {GrassCombat PersoState}
-   %Création d'un nombre aléatoire pour respecter la proba : génération d'un nombre entre 0 et 100 et regarder si le nombre est inférieur à la Proba definie tout en haut :)
       Rand
       RandomPokemoz
-      Combat
-      X
    in
       Rand = {OS.rand $} mod 100
       if (Rand =< Proba-1) then
       % Choix d'un pokémoz Aléatoire
 	 RandomPokemoz = ({OS.rand $} mod ({Record.width Wilds}))+1
-	 thread {CombatWild PersoState (Wilds.RandomPokemoz)} end % vu que ça attend parfois
+	 thread {CombatWild PersoState (Wilds.RandomPokemoz)} end
       end
    end
 
 
-   %%%% Fonction pour faire évoluer les wilds pokemoz %%%%%%
+   %%%% Function to change the wilds pokemoz %%%%%%
    proc {WildsXpAdd Wilds DelayToApply}
       Width = {Record.width Wilds}
       proc {Recursion Wilds Width}
@@ -313,7 +320,7 @@ define
    end
 
    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%TODO INTELLIGENCE ARTIFICIELLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% INTELLIGENCE ARTIFICIELLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    proc {MovePersoPrincipalIntelligence }
       State StatePokemoz
       fun {PauseRec}
@@ -372,13 +379,13 @@ in
    
    MapTrainers={NewPortObject FMap {CreateEmptyMap}}
    Map={NewPortObject FMap {CreateMap}}
-   %Création de la map
+   %Create map
    {Send Map get(XMap)}
-   %Démarrage du jeux
+   %Start game
    Game = {StartGame (proc{$} {Send PortPersoPrincipal moveUp} end) (proc{$} {Send PortPersoPrincipal moveLeft} end) (proc{$} {Send PortPersoPrincipal moveDown} end) (proc{$} {Send PortPersoPrincipal moveRight} end) ((10-Speed)*Delai) MapFile PersoPrincipalAuto}
   
 
-   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject Game.text} % Moyen de contrer un bug en transferant manuellement des informations une fois qu'elles sont compilée :)
+   {InitTrainerFunctor GrassCombat MapTrainers Map Game.windowMap PortPersoPrincipal PausePortObject Game.text} 
    PortPersoPrincipal={NewPortObject FTrainer {CreateTrainer "Moi" {NewPortObject FPokemoz {CreatePokemoz5 {Choose}}} 7 7 persoPrincipal Game.canvasMap 1000} } % N = 1000 pour le perso principal
 
    %%%%% Fonction qui fait évoluer les pokémoz sauvages 
@@ -386,8 +393,8 @@ in
 
    RecordOtherPortObjectTrainers = {CreateOtherPortObjectTrainers 3  Game.canvasMap}
 
-   thread {MoveOther RecordOtherPortObjectTrainers Delai Speed PausePortObject} end % boucle infinie qui fait en sorte que les dresseurs se déplace attention à certains moment ils se superposent !!!
+   thread {MoveOther RecordOtherPortObjectTrainers Delai Speed PausePortObject} end % random move of other trainer
 
    
-   if (PersoPrincipalAuto) then thread {MovePersoPrincipalIntelligence} end end % lance ou pas l'intelligence artificielle
+   if (PersoPrincipalAuto) then thread {MovePersoPrincipalIntelligence} end end 
 end

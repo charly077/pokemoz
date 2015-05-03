@@ -181,7 +181,7 @@ Wilds = Pokemoz.wilds
    % starts or does not start fighting according to the current environment
    %
    fun {MoveLeft Init}
-      B Grass TypePerso in {Send MapTrainers check((Init.x)-1 Init.y B)}
+      B Grass in {Send MapTrainers check((Init.x)-1 Init.y B)}
       {Send Map check((Init.x)-1 Init.y Grass)}
       if B then  {Send MapTrainers setMap((Init.x) Init.y 0)}
 	 {Send MapTrainers setMap((Init.x)-1 Init.y Init.n)}
@@ -292,7 +292,7 @@ Wilds = Pokemoz.wilds
       [] moveUp then if ({Send PausePortObject getState($)}==0) then {MoveUp Init} else Init end
       % [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $} % but ???
       % [] getPortObject(R) then R = Init.portObject Init
-      [] get(X) then X=Init Init
+      % [] get(X) then X=Init Init
       [] getState(State) then State=Init Init
       end
    end

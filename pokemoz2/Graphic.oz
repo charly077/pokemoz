@@ -170,11 +170,11 @@ define
    
       WindowMap = {QTk.build Desc}
 
-   % Appel de la fonction qui va dessiner la map
+   % Call the function that will draw the map
       {CreateMapGraphique Map CanvasMap}
       {WindowMap show}
 
-   % Affectation des touches au mouvement du personnage principal
+   % Key assignment to the movement of the main character
       if (MoveAuto == false) then 
 	 {WindowMap bind(event:"<Up>" action:MoveUpPrincipal)}
 	 {WindowMap bind(event:"<Left>" action:MoveLeftPrincipal)}
@@ -238,7 +238,21 @@ define
    %                   either a t type of record, if the attacker is a trainer
    %
 
-   % Main Perso >< wild pokémoz
+
+   %
+   %pre: Pokemoz : record representing the state of a pokemoz
+   %
+   fun{BackGroundColorFight Pokemoz}
+      case Pokemoz.type
+      of grass then green
+      [] fire then red
+      [] water then blue
+      end
+   end
+   
+   %
+   %Function which manage fight between Main Perso >< wild pokémoz
+   %
    fun {AttackWildPokemoz  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
@@ -247,8 +261,6 @@ define
       ImageCanvasPersoPrincipal
       AttaquantImage
       AttaqueImage
-      ColorAttaquant
-      ColorAttaque
       X
    in
       PokemozAttaquantName = Attaquant.name
@@ -258,30 +270,20 @@ define
       PokemozPersoPrincipalType = X.type
 	
       {CanvasAttaquant create(image 550 150 image:{ChoosePhotoPokemoz PokemozAttaquantName} handle:AttaquantImage) }
-      % Mettre l'image du dresseur pendant une seconde
+      % display the image of the trainer for one second
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
       {Delay 3000}
       {ImageCanvasPersoPrincipal delete}
       {CanvasPersoPrincipal create(image 150 150 image:{ChoosePhotoPokemoz PokemozPersoPrincipalName}handle:AttaqueImage) }
 
-      case PokemozAttaquantType
-      of grass then ColorAttaquant=green
-      [] fire then ColorAttaquant=red
-      [] water then ColorAttaquant=blue
-      end
-      {CanvasAttaquant set(bg:ColorAttaquant)}
-
-      case PokemozPersoPrincipalType
-      of grass then ColorAttaque=green
-      [] fire then ColorAttaque=red
-      [] water then ColorAttaque=blue
-      end
-      
-      {CanvasPersoPrincipal set(bg:ColorAttaque)}
+      {CanvasAttaquant set(bg:{BackGroundColorFight Attaquant})}
+      {CanvasPersoPrincipal set(bg:{BackGroundColorFight X})}
       combat(attaquantImage:AttaquantImage attaqueImage:AttaqueImage)
    end
 
-   % Perso principal >< autre dresseur
+   %
+   % Function which manage fight between Main Perso  >< Other Trainer
+   %
    fun {AttackTrainer  WindowCombat CanvasAttaquant CanvasPersoPrincipal Attaque Attaquant}
       PokemozAttaquantName
       PokemozPersoPrincipalName
@@ -293,12 +295,10 @@ define
       ImageCanvasPersoSauvage
       AttaquantImage
       AttaqueImage
-      ColorAttaquant
-      ColorAttaque
    in
       {CanvasPersoPrincipal create(image 150 150 image:PersoPrincipalImageGrand handle:ImageCanvasPersoPrincipal)}
       {CanvasAttaquant create(image 550 150 image:PersoSauvageImageGrand handle:ImageCanvasPersoSauvage)}
-      {Delay 3000} % Permet de laisser les perso 3 secondes
+      {Delay 3000} % display three seconds trainers
       PokemozAttaquant = Attaquant.p
       PokemozPersoPrincipal = Attaque.p
       PokemozAttaquantState = {Send PokemozAttaquant getState($)}
@@ -311,26 +311,15 @@ define
       {ImageCanvasPersoPrincipal delete}
       {ImageCanvasPersoSauvage delete}
 
-      % On peut mettre directement le pokemoz
-      %TODO Faire les colors
-      case PokemozAttaquantState.type 
-      of grass then ColorAttaquant=green
-      [] fire then ColorAttaquant=red
-      [] water then ColorAttaquant=blue
-      end
-      {CanvasAttaquant set(bg:ColorAttaquant)}
-
-      case PokemozPersoPrincipalState.type
-      of grass then ColorAttaque=green
-      [] fire then ColorAttaque=red
-      [] water then ColorAttaque=blue
-      end
-      {CanvasPersoPrincipal set(bg:ColorAttaque)}
+      {CanvasAttaquant set(bg:{BackGroundColorFight PokemozAttaquantState})}      
+      {CanvasPersoPrincipal set(bg:{BackGroundColorFight PokemozPersoPrincipalState})}
       
       combat(attaquantImage:AttaquantImage attaqueImage:AttaqueImage)
    end
 
-   %PortAttaque est un port qui permet de savoir que le bouton attack à été appuyé
+   %
+   % function that handles the start of a fight 
+   %
    fun {StartCombat Attaque AttaquantPort PortAttack PausePortObject FightAuto WaitBeforeFight}
       WindowCombat
       CanvasAttaquant
@@ -377,7 +366,9 @@ define
       {Record.adjoin ToAddCombat combat(windowCombat:WindowCombat canvasAttaquant:CanvasAttaquant labelAttaquant:LabelAttaquant canvasPersoPrincipal:CanvasPersoPrincipal labelPersoPrincipal:LabelPersoPrincipal labelWriteAction:LabelWriteAction) $}
    end
 
-
+   %
+   % handling function messages displayed during a fight pokemoz
+   %
    proc {SetCombatState Combat StateAttaque StateAttaquant}
       fun{CreateString List}
 	 case List of nil then nil
@@ -387,7 +378,7 @@ define
 	    end
 	 end
       end
-      % Création du message de l'attaqué
+      % Ccreating the message of the attacked
       Xp1 MsgAttaquant Hp1 Lx1
       Xp2 MsgAttaque Hp2 Lx2
       Font
@@ -417,7 +408,7 @@ define
 
 
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   %%%%%%%%%%% Choisir un pokémoz avant de commencer %%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%% Choose a pokemoz before starting %%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    fun{Choose}
       Window
@@ -428,7 +419,6 @@ define
       CharmandozHandle
       CharmandozImage
       P S
-      Select
       Choose = td(lr(canvas(handle:BulbasozHandle width:300 height:300)
 		     canvas(handle:OztirtleHandle width:300 height:300)
 		     canvas(handle:CharmandozHandle width:300 height:300)))

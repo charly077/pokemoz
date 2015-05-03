@@ -80,7 +80,7 @@ end
 
    fun{CreatePokemozTrainer T}
       Type Name Hp Lx Trainer Pokemoz in
-      {Send T get(Trainer)}
+      {Send T getState(Trainer)}
       {Send Trainer.p get(Pokemoz)}
       Name=Pokemozs.(({OS.rand} mod {Width Pokemozs})+1)
       case Name of "Bulbasoz" then Type=grass
@@ -154,7 +154,7 @@ end
    %
    %post : inflicts damage of pokemoz Init by type and decreasse the hp of Init 
    %
-   fun {AttackBy Y Init} Attaquant in {Send Y get(Attaquant)}
+   fun {AttackBy Y Init} Attaquant in {Send Y getState(Attaquant)}
       case Init.type
       of fire then case Attaquant.type
 		   of fire then {AdjoinAt Init hp ((Init.hp)-2)}
@@ -181,7 +181,7 @@ end
    %       or if his attack fails
    %
    fun{Attack Y Init}
-      X in {Send Y get(X)}
+      X in {Send Y getState(X)}
       ((((6+X.lx-Init.lx)*9))>({OS.rand} mod 100))
    end
 
@@ -201,7 +201,7 @@ end
    %post : update the state of pokemoz represented by Status after a win fight
    %
    fun{GagneContre Y Status}
-      Perdant in {Send Y get(Perdant)}
+      Perdant in {Send Y getState(Perdant)}
       {LevelUp {UpdateXp Perdant Status}}
    end
 
@@ -217,7 +217,7 @@ end
       [] addXp(X) then {AddXp State X} 
       [] setHpMax() then {SetHpMax State}
       [] levelup then {LevelUp State}
-      [] get(X) then X=State State
+      % [] get(X) then X=State State
       [] getState(StateR) then StateR=State State
       [] getHp(Hp) then Hp=State.hp State
       [] attack(Y Succeed) then Succeed={Attack Y State} State
