@@ -133,17 +133,17 @@
 \section*{Introduction}
 
 The game Pokemoz was designed for the class LINGI1131. We have followed the project instructions but also added a little personal touch. 
-In order to be closer to the reality, the wild Pokemoz’s evolve through the game and can acquire experience during combat but also over time.
-After combat, if his Pokemoz is wounded or dead, the head trainer has to go back to his starting point, his house, to cure it or bring it back to life. 
+In order to be closer to the reality, the wild Pokemoz evolve through the game and can acquire experience during combats but also over time.
+After a combat, if his Pokemoz is wounded or dead, the head trainer has to go back to his starting point, his house, to cure it or bring it back to life. 
 
 The artificial intelligence provided to our head trainer consists of making his Pokemoz evolve to the tenth level through various fights, while curing it when it’s been hurt or lost a fight. 
 Once the tenth level completed, the trainer takes the shortest way to reach the exit.
 
 \section*{Structure of the code and implementation choices}
 
-First, the structure of the three main elements will be presented: the Pokemozs, the trainers and the maps.\\
+First, the structure of the three main elements will be presented: the Pokemoz, the trainers and the maps.\\
 
-We have represented the Pokemozs with a record that has the following structure \\
+We have represented the Pokemoz with a record that has the following structure \\
 \textbf{Pokemoz = p(type: name:  hp:  lx: xp: )} \\
 Where
 \begin{itemize}
@@ -175,7 +175,7 @@ Maps are represented as matrices built with a tuple of tuples. The road map’s 
 The trainers map contains values of either N or 1000. A value of  N nonzero  represents that a wild trainer N stands on the position, N is the ‘atom’ which represent the wild trainer in the record used to stock them. A value of 1000 means that the head trainer is there and finally a value of 0 represents the fact that the position is free of trainer.
 
 \paragraph{}
-In order to design the game, 5 types of PortObject were used. We have included the Pokemozs and the trainers in PortObjects to be able to update them and accede to their information during the events (fights, displacements, treatments …) that they live throughout the game.  
+In order to design the game, 5 types of PortObject were used. We have included the Pokemoz and the trainers in PortObjects to be able to update them and accede to their information during the events (fights, displacements, treatments …) that they live throughout the game.  
 
 \paragraph{}
 We have decided to use three maps. 
@@ -187,7 +187,7 @@ The two others maps are not see by the player, they are used as support for the 
 \end{itemize}
 
 \paragraph{}
-Finally, the two lasts PortObjects enabling us to stop the displacements of the trainers while a combat is running and to start one combat at a time.  But unfortunately it doesn’t work as well as we’d imagined it. Actually at that time we didn’t know PortObjects with states and we tried to create that with these two PortObjects. But some problems still encounter due to the fact that unlike state, our functions aren’t atomic ones.  That’s (with all what we added to try to counter that), the only reason why some times, more than one combat can happen. Or also those trainers can move a little in some case while a combat is already underway (If the movement had start before the ‘pause’ event or also if more than one combat are started and one stops). When we notice that, we’ve seen that our architecture doesn’t not allow use to add state and we had not enough time left to change all our code.
+Finally, the two lasts PortObjects enabling us to stop the displacements of the trainers while a combat is running and to start one combat at a time.  But unfortunately it doesn’t work as well as we’d imagined it. Actually at that time we didn’t know PortObjects with states and we tried to create that with these two PortObjects. But some problems still encounter due to the fact that unlike state, our functions aren’t atomic ones.  That’s (with all what we added to try to counter that), the only reason why some times, more than one combat can happen. Or also those trainers can move a little in some case while a combat is already underway (If the movement had start before the ‘pause’ event or also if more than one combat are started and one stops). When we notice that, we’ve seen that our architecture doesn’t allow use to add state and we had not enough time left to change all our code.
 \paragraph{}
 We invite you to take a look at the component and state diagrams to understand the interactions between the PortObjects.
 
