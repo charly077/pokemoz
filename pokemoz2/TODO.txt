@@ -8,10 +8,7 @@ CES deux bugs sont du au fait qu’on a implémenté des FAUX mutex agrémenté 
 
 A Ameliorer
 
--> remettre le code au propre
--> purifier le code
 -> supprimer les warnings
 -> animation pour les attaques !!!
 -> Terminer proprement le jeu sur le terminal 
--> Attention afficher un message lorsque la vie est remise au maximum
 
