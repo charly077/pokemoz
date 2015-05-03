@@ -290,8 +290,8 @@ Wilds = Pokemoz.wilds
       [] moveRight then if ({Send PausePortObject getState($)}==0) then {MoveRight Init} else Init end
       [] moveDown then if ({Send PausePortObject getState($)}==0) then {MoveDown Init} else Init end
       [] moveUp then if ({Send PausePortObject getState($)}==0) then {MoveUp Init} else Init end
-      [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $} % but ???
-      [] getPortObject(R) then R = Init.portObject Init
+      % [] setPortObject(X) then {Record.adjoin Init t(portObject:X) $} % but ???
+      % [] getPortObject(R) then R = Init.portObject Init
       [] get(X) then X=Init Init
       [] getState(State) then State=Init Init
       end

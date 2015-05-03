@@ -136,7 +136,7 @@ define
 	 end
       end
    end
-   proc {CheckCombat X Y MapState} % considère aussi les diagonales ....
+   proc {CheckCombat X Y MapState} 
       NPerso = MapState.Y.X in
       if (X > 1) then {CheckFight NPerso X-1 Y MapState} end
       if (X < 7) then {CheckFight NPerso X+1 Y MapState} end
