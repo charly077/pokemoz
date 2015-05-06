@@ -335,7 +335,7 @@ define
       {Delay ((10-Speed)*Delai)}
       {Send PortPersoPrincipal getState(State)}
       {Send State.p getState(StatePokemoz)}
-      if {Or (StatePokemoz.lx < 9) (StatePokemoz.hp == 0)} then
+      if {Or (StatePokemoz.lx < 10) (StatePokemoz.hp == 0)} then
 	 if(StatePokemoz.hp>12) then Rand Rand2 in
 	    if ({And (State.x > 5) (State.y > 5)}) then
 	       Rand = ({OS.rand $} mod 70)
