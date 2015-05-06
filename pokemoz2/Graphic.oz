@@ -165,7 +165,7 @@ define
       {Pickle.load MapFile Map} % pick the map
       Desc = td(title:"Pokemoz, the beginning of the end :) "
 		canvas(handle:CanvasMap width:(N-1)*WidthBetween+100 height:(N-1)*WidthBetween+100)
-		button(text:"End the game" action:Close1 width:10)
+		button(text:"End the game" action:Close1 width:15)
 	       label(handle:Text justify:center width:65 font:Font ))  
    
       WindowMap = {QTk.build Desc}

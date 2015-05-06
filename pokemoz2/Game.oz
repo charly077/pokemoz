@@ -101,7 +101,15 @@ define
       {Send PausePortObject continue} % je débloque
    end
 
-
+   %PortObject to handle combats
+   fun {PortObjectFunctionCombats Msg State}
+      case Msg of
+	 combatWild(StateX Y) then {CombatWild StateX Y} State
+      [] combatPerso(StateX Y) then {CombatPerso StateX Y} State
+      end
+   end
+   
+   PortObjectCombat = {NewPortObject PortObjectFunctionCombats 0}
 
 % Fonction de creation d'un record map
    fun{CreateEmptyMap}
@@ -141,9 +149,9 @@ define
    proc {CheckFight NPerso X Y MapState}
       if {Or (MapState.Y.X == 0) (NPerso==0)} then skip
       else
-	 if (MapState.Y.X == 1000) then  thread {CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.NPerso} end % car peut attendre
+	 if (MapState.Y.X == 1000) then {Send PortObjectCombat combatPerso({Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.NPerso)}  %thread {CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.NPerso} end % car peut attendre
 	 end
-	 if (NPerso == 1000) then thread {CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.(MapState.Y.X)} end
+	 if (NPerso == 1000) then {Send PortObjectCombat combatPerso({Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.(MapState.Y.X))}%{CombatPerso {Send PortPersoPrincipal getState($)} RecordOtherPortObjectTrainers.(MapState.Y.X)} end
 	 end
       end
    end
@@ -291,7 +299,7 @@ define
       if (Rand =< Proba-1) then
       % Choix d'un pokémoz Aléatoire
 	 RandomPokemoz = ({OS.rand $} mod ({Record.width Wilds}))+1
-	 thread {CombatWild PersoState (Wilds.RandomPokemoz)} end
+	 {Send PortObjectCombat combatWild(PersoState (Wilds.RandomPokemoz))} %thread {CombatWild PersoState (Wilds.RandomPokemoz)} end
       end
    end
 
