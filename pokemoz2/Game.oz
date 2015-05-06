@@ -104,8 +104,8 @@ define
    %PortObject to handle combats
    fun {PortObjectFunctionCombats Msg State}
       case Msg of
-	 combatWild(StateX Y) then {CombatWild StateX Y} State
-      [] combatPerso(StateX Y) then {CombatPerso StateX Y} State
+	 combatWild(StateX Y) then {Send PausePortObject pause} {CombatWild StateX Y} {Send PausePortObject continue} State
+      [] combatPerso(StateX Y) then {Send PausePortObject pause} {CombatPerso StateX Y} {Send PausePortObject continue}State
       end
    end
    
